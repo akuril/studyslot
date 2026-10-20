@@ -53,7 +53,7 @@ The password rule (8+ characters, at least one letter and one number) is checked
 |---|---|---|---|---|---|
 | _id | ObjectId | auto | auto | none | yes, as `id` |
 | name | String | yes | none | trimmed, 3–80 characters, **unique** | yes |
-| subject | String | yes | none | enum: `math`, `science`, `english`, `test-prep`, `homework-help` | yes |
+| subject | String | yes | none | enum: `math`, `science`, `english`, `social-studies`, `world-languages`, `computer-science`, `study-skills`, `test-prep`, `homework-help` | yes |
 | gradeBand | String | yes | none | enum: `6-8`, `9-12`, `6-12` | yes |
 | summary | String | yes | none | ≤160 characters | yes |
 | description | String | yes | none | ≤1000 characters | yes (detail and list) |
@@ -132,9 +132,14 @@ All tutors, names, and descriptions are fictional. No real people, schools, or c
 | 4 | Biology & Chemistry Tutoring | science | 9-12 | 60 | $55 | Dr. Priya Nair | yes |
 | 5 | Reading & Writing Workshop | english | 6-8 | 45 | $40 | Mr. Jonah Reed | yes |
 | 6 | Essay Writing Coach | english | 9-12 | 60 | $50 | Ms. Claire Whitfield | yes |
-| 7 | SAT & ACT Prep | test-prep | 9-12 | 90 | $75 | Mr. Marcus Bell | yes |
-| 8 | Homework Help Hour | homework-help | 6-12 | 30 | $25 | Ms. Dana Okoro | yes |
-| 9 | Summer Math Bridge | math | 6-8 | 60 | $45 | Ms. Avery Lane | **no** (proves inactive services are hidden and can't be booked) |
+| 7 | World History & Geography Help | social-studies | 6-8 | 45 | $40 | Mr. Samuel Ortiz | yes |
+| 8 | U.S. History & Government Review | social-studies | 9-12 | 60 | $50 | Ms. Hannah Brooks | yes |
+| 9 | Spanish Practice & Conversation | world-languages | 6-12 | 45 | $45 | Sra. Lucia Fernandez | yes |
+| 10 | Intro to Coding with Python | computer-science | 6-12 | 60 | $55 | Mr. Kai Thompson | yes |
+| 11 | Study Skills & Organization Coaching | study-skills | 6-12 | 45 | $40 | Ms. Nora Patel | yes |
+| 12 | SAT & ACT Prep | test-prep | 9-12 | 90 | $75 | Mr. Marcus Bell | yes |
+| 13 | Homework Help Hour | homework-help | 6-12 | 30 | $25 | Ms. Dana Okoro | yes |
+| 14 | Summer Math Bridge | math | 6-8 | 60 | $45 | Ms. Avery Lane | **no** (proves inactive services are hidden and can't be booked) |
 
 Each seed also has a `summary` (≤160 characters) and `description` (≤1000 characters), written when the seed script is built in Step 13.
 
