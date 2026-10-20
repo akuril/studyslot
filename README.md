@@ -1,16 +1,29 @@
-# React + Vite
+# StudySlot
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+StudySlot is a tutoring booking platform for students in grades 6–12. Parents and guardians can browse tutoring services, book and manage sessions, and get an AI-assisted suggestion for which service fits their student's needs.
 
-Currently, two official plugins are available:
+> **Status:** in development (bootcamp capstone). This README will be completed with setup, API, deployment, and screenshots as the project is built.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Repository layout
 
-## React Compiler
+```
+studyslot/
+├── client/   React + Vite frontend (JavaScript, Bootstrap 5, React Router)
+└── server/   Node.js + Express + MongoDB backend (coming next)
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Run the frontend locally
 
-## Expanding the ESLint configuration
+Requires Node.js 20.19+ (developed on Node 24).
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+cd client
+npm install
+npm run dev
+```
+
+Then open the URL Vite prints (usually http://localhost:5173).
+
+## History
+
+StudySlot grew out of **HomeworkHQ**, a homework and test planner. The final HomeworkHQ version is preserved under the Git tag `homeworkhq-v1`.

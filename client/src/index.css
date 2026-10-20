@@ -1,0 +1,111 @@
+/*
+  Custom styles for StudySlot.
+  Bootstrap handles most styling. This file is for:
+  1. Our own brand colors and small tweaks
+  2. Anything Bootstrap doesn't provide
+  Colors use Bootstrap's CSS variables (var(--bs-...)) so they work in light AND dark mode.
+*/
+
+/* ===== Theme ===== */
+
+:root {
+  --ss-page-bg: #f8fafc;
+}
+
+[data-bs-theme='dark'] {
+  --ss-page-bg: #16191c;
+}
+
+body {
+  background-color: var(--ss-page-bg);
+}
+
+/* Lets long text wrap correctly inside flex layouts */
+.min-w-0 {
+  min-width: 0;
+}
+
+/* ===== Navbar ===== */
+
+/* Bigger, easier-to-tap links (44px minimum for phones and younger users) */
+.navbar .nav-link {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+}
+
+.navbar .nav-link:hover {
+  background-color: var(--bs-secondary-bg);
+}
+
+/* Highlight the page you're currently on */
+.navbar .nav-link.active {
+  background-color: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
+}
+
+/* Theme button: full width on phones, normal width on desktops */
+.theme-toggle {
+  min-height: 44px;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+@media (min-width: 992px) {
+  .theme-toggle {
+    width: auto !important;
+  }
+}
+
+/* ===== Cards that lift on hover ===== */
+
+.stat-card-link {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stat-card-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ===== Touch screens: bigger small buttons ===== */
+
+/* On phones and tablets (finger instead of mouse), make every small button at least 44px */
+@media (pointer: coarse) {
+  .btn-sm {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-close {
+    padding: 0.75em;
+  }
+}
+/* ===== Printing ===== */
+
+@media print {
+  body {
+    background-color: #ffffff;
+  }
+
+  /* Hide the app's navigation and footer on paper */
+  .navbar,
+  footer {
+    display: none !important;
+  }
+
+  /* On screen, the layout fills the window height to keep the footer down.
+     On paper, that can create a blank extra page, so turn it off. */
+  .min-vh-100 {
+    min-height: auto !important;
+  }
+}

@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment files (secrets). Never commit these.
+# The .env.example files ARE committed: they list variable names with safe placeholders.
+.env
+.env.*
+!.env.example
