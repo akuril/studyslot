@@ -1,7 +1,9 @@
 import express from 'express';
 import helmet from 'helmet';
 
+import { config } from './config/env.js';
 import healthRoutes from './routes/healthRoutes.js';
+import { requestLogger } from './middleware/requestLogger.js';
 import { notFound } from './middleware/notFound.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
@@ -11,6 +13,11 @@ const app = express();
 
 // Security headers (and hides the "X-Powered-By: Express" header).
 app.use(helmet());
+
+// One safe log line per request (skipped during automated tests to keep output readable).
+if (config.nodeEnv !== 'test') {
+  app.use(requestLogger);
+}
 
 // Parse JSON request bodies into req.body. The size limit blocks huge payloads.
 app.use(express.json({ limit: '10kb' }));
