@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import { config } from './config/env.js';
 import healthRoutes from './routes/healthRoutes.js';
 import serviceRoutes from './routes/serviceRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { notFound } from './middleware/notFound.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -11,6 +12,12 @@ import { errorHandler } from './middleware/errorHandler.js';
 // Builds and configures the Express app. It does NOT start listening;
 // server.js does that. Keeping them separate makes the app easier to test.
 const app = express();
+
+// On Render, requests arrive through one proxy. Trusting it makes req.ip the real
+// visitor's address, so rate limits apply per visitor instead of to everyone at once.
+if (config.isProduction) {
+  app.set('trust proxy', 1);
+}
 
 // Security headers (and hides the "X-Powered-By: Express" header).
 app.use(helmet());
@@ -25,6 +32,7 @@ app.use(express.json({ limit: '10kb' }));
 
 // ===== Routes =====
 app.use('/api/health', healthRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/services', serviceRoutes);
 
 // ===== Must come LAST =====
