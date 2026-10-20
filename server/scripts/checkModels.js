@@ -8,6 +8,8 @@
 import { connectToDatabase, disconnectFromDatabase } from '../src/config/db.js';
 import { User } from '../src/models/User.js';
 import { Service } from '../src/models/Service.js';
+import mongoose from 'mongoose';
+import { Booking } from '../src/models/Booking.js';
 
 let failures = 0;
 
@@ -225,9 +227,178 @@ async function checkServiceDatabase() {
   }
 }
 
+// A complete, valid booking. Ids are random: MongoDB does not check that
+// referenced documents exist (that is the API's job in Step 19).
+function validBookingData(overrides = {}) {
+  const start = new Date('2026-11-03T20:00:00.000Z'); // Tue 3:00 PM Eastern
+  return {
+    user: new mongoose.Types.ObjectId(),
+    service: new mongoose.Types.ObjectId(),
+    serviceSnapshot: {
+      name: 'Model Check Service',
+      tutorName: 'Test Tutor',
+      durationMinutes: 60,
+      priceCents: 4500,
+    },
+    studentFirstName: 'Sam',
+    studentGrade: 7,
+    startTime: start,
+    endTime: new Date(start.getTime() + 60 * 60 * 1000),
+    ...overrides,
+  };
+}
+
+async function bookingErrors(overrides) {
+  return invalidFields(new Booking(validBookingData(overrides)));
+}
+
+async function checkBookingValidation() {
+  console.log('\n== Booking: validation (no database) ==');
+
+  const valid = new Booking(validBookingData({ studentFirstName: '  Sam  ' }));
+  check('valid booking passes validation', (await invalidFields(valid)).length === 0);
+  check('status defaults to confirmed', valid.status === 'confirmed');
+  check(
+    'notes default to empty, cancelledAt to null, rescheduleCount to 0',
+    valid.notes === '' && valid.cancelledAt === null && valid.rescheduleCount === 0,
+  );
+  check('student first name is trimmed', valid.studentFirstName === 'Sam');
+  check(
+    'originalStartTime is copied from startTime',
+    valid.originalStartTime && valid.originalStartTime.getTime() === valid.startTime.getTime(),
+  );
+
+  const json = valid.toJSON();
+  check(
+    'toJSON exposes id and serviceId',
+    typeof json.id === 'string' && typeof json.serviceId === 'string',
+  );
+  check(
+    'toJSON hides user, service, _id, __v',
+    !('user' in json) && !('service' in json) && !('_id' in json) && !('__v' in json),
+  );
+
+  const missing = await invalidFields(new Booking({}));
+  check(
+    'required fields are rejected when missing',
+    [
+      'user',
+      'service',
+      'serviceSnapshot',
+      'studentFirstName',
+      'studentGrade',
+      'startTime',
+      'endTime',
+    ].every((field) => missing.includes(field)),
+  );
+
+  check(
+    'accented first name is allowed',
+    (await bookingErrors({ studentFirstName: 'José' })).length === 0,
+  );
+  check(
+    'hyphen/apostrophe names are allowed',
+    (await bookingErrors({ studentFirstName: "Mary-Kate O'Neil" })).length === 0,
+  );
+  check(
+    'first name with digits/symbols is rejected',
+    (await bookingErrors({ studentFirstName: 'Sam123!' })).includes('studentFirstName'),
+  );
+  check('grade 5 is rejected', (await bookingErrors({ studentGrade: 5 })).includes('studentGrade'));
+  check(
+    'grade 13 is rejected',
+    (await bookingErrors({ studentGrade: 13 })).includes('studentGrade'),
+  );
+  check(
+    'grade 7.5 is rejected',
+    (await bookingErrors({ studentGrade: 7.5 })).includes('studentGrade'),
+  );
+  check(
+    'notes over 300 characters are rejected',
+    (await bookingErrors({ notes: 'x'.repeat(301) })).includes('notes'),
+  );
+  check(
+    'status "rescheduled" is rejected (A: badge, not status)',
+    (await bookingErrors({ status: 'rescheduled' })).includes('status'),
+  );
+
+  const start = validBookingData().startTime;
+  check(
+    'end time before start time is rejected',
+    (await bookingErrors({ endTime: new Date(start.getTime() - 1) })).includes('endTime'),
+  );
+  check(
+    'cancelled booking without cancelledAt is rejected',
+    (await bookingErrors({ status: 'cancelled' })).includes('cancelledAt'),
+  );
+  check(
+    'cancelled booking with cancelledAt is allowed',
+    (await bookingErrors({ status: 'cancelled', cancelledAt: new Date() })).length === 0,
+  );
+  check(
+    'confirmed booking with cancelledAt is rejected',
+    (await bookingErrors({ cancelledAt: new Date() })).includes('cancelledAt'),
+  );
+}
+
+async function checkBookingDatabase() {
+  console.log('\n== Booking: database ==');
+
+  await Booking.init();
+  const indexes = await Booking.listIndexes();
+  const hasIndex = (keys) =>
+    indexes.some((index) => JSON.stringify(index.key) === JSON.stringify(keys));
+  check('dashboard index { user, startTime } exists', hasIndex({ user: 1, startTime: 1 }));
+  check(
+    'overlap index { service, status, startTime } exists',
+    hasIndex({ service: 1, status: 1, startTime: 1 }),
+  );
+
+  const data = validBookingData({ studentFirstName: 'Modelcheck' });
+  try {
+    const created = await Booking.create(data);
+    check(
+      'booking saves and gets originalStartTime',
+      created.originalStartTime.getTime() === data.startTime.getTime(),
+    );
+
+    created.startTime = new Date(data.startTime.getTime() + 24 * 60 * 60 * 1000);
+    created.endTime = new Date(created.startTime.getTime() + 60 * 60 * 1000);
+    created.originalStartTime = new Date(0); // must be ignored: the field is immutable
+    await created.save();
+    const reloaded = await Booking.findById(created._id);
+    check(
+      'originalStartTime cannot be changed after creation',
+      reloaded.originalStartTime.getTime() === data.startTime.getTime(),
+    );
+
+    // The real overlap query from Step 19. explain() shows HOW MongoDB ran it.
+    const newStart = new Date(data.startTime.getTime() + 24 * 60 * 60 * 1000 + 30 * 60 * 1000);
+    const newEnd = new Date(newStart.getTime() + 60 * 60 * 1000);
+    const overlapQuery = {
+      service: data.service,
+      status: 'confirmed',
+      startTime: { $lt: newEnd },
+      endTime: { $gt: newStart },
+    };
+    const overlapping = await Booking.find(overlapQuery);
+    check('overlap query finds the clashing booking', overlapping.length === 1);
+
+    const plan = JSON.stringify(await Booking.find(overlapQuery).explain());
+    check(
+      'overlap query uses the { service, status, startTime } index',
+      plan.includes('service_1_status_1_startTime_1'),
+    );
+  } finally {
+    await Booking.deleteMany({ studentFirstName: 'Modelcheck' });
+    console.log('(test booking removed)');
+  }
+}
+
 async function main() {
   await checkUserValidation();
   await checkServiceValidation();
+  await checkBookingValidation();
 
   try {
     await connectToDatabase();
@@ -240,6 +411,7 @@ async function main() {
   try {
     await checkUserDatabase();
     await checkServiceDatabase();
+    await checkBookingDatabase();
   } finally {
     await disconnectFromDatabase();
   }
