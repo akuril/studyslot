@@ -110,7 +110,7 @@ Indexes: `{ user: 1, startTime: 1 }` (dashboard) · `{ service: 1, status: 1, st
 ## Validation behavior
 
 1. **API boundary first.** Each route validates and normalizes its request: trim, lowercase email, type checks, enums, lengths, ObjectId format, booking rules. A failure returns **400** with `{ error, details: [{ field, message }] }`.
-2. **Only allowed fields** are copied from `req.body`. Unknown fields (for example `user`, `status`, `serviceSnapshot`, `role`) are ignored and never passed to MongoDB.
+2. **Only allowed fields** are accepted from `req.body`. Unknown fields (for example `user`, `status`, `serviceSnapshot`, `role`) are rejected with 400 and never passed to MongoDB.
 3. **Mongoose schema rules** are the last line of defense, in case a code path forgets a check. They should never be the first error a user sees.
 4. **Duplicate email:** a MongoDB 11000 error becomes **409** `{ error: "An account with this email already exists" }`.
 
