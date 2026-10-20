@@ -3,6 +3,7 @@ import helmet from 'helmet';
 
 import { config } from './config/env.js';
 import healthRoutes from './routes/healthRoutes.js';
+import serviceRoutes from './routes/serviceRoutes.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { notFound } from './middleware/notFound.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -24,6 +25,7 @@ app.use(express.json({ limit: '10kb' }));
 
 // ===== Routes =====
 app.use('/api/health', healthRoutes);
+app.use('/api/services', serviceRoutes);
 
 // ===== Must come LAST =====
 // 1. Any request that didn't match a route above gets a 404.
