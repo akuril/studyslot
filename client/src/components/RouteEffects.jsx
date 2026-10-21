@@ -3,7 +3,11 @@ import { useLocation } from 'react-router-dom';
 
 // [pattern, title] pairs. The first pattern that matches wins.
 // New pages add their own pair here as they are built.
-const PAGE_TITLES = [[/^\/$/, 'Home']];
+const PAGE_TITLES = [
+  [/^\/$/, 'Home'],
+  [/^\/services$/, 'Tutoring Services'],
+  [/^\/services\/[^/]+$/, 'Service Details'], // replaced by the service name once loaded
+];
 
 function getPageTitle(pathname) {
   // Treat "/services/" the same as "/services"

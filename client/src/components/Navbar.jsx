@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
 
-// More links (Services, My Bookings, Log in) are added as those pages are built.
-const navItems = [{ to: '/', label: 'Home', icon: '🏠', end: true }];
+// More links (My Bookings, Log in) are added as those pages are built.
+const navItems = [
+  { to: '/', label: 'Home', icon: '🏠', end: true },
+  { to: '/services', label: 'Services', icon: '📚' },
+];
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

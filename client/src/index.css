@@ -65,13 +65,27 @@ body {
 
 /* ===== Cards that lift on hover ===== */
 
-.stat-card-link {
+.stat-card-link,
+.service-card {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.stat-card-link:hover {
+.stat-card-link:hover,
+.service-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Keyboard users see a clear outline around the whole service card */
+.service-card:focus-within {
+  outline: 3px solid var(--bs-primary);
+  outline-offset: 2px;
+}
+
+/* Keep paragraph breaks and long words from breaking the layout */
+.service-description {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
 }
 
 /* ===== Touch screens: bigger small buttons ===== */

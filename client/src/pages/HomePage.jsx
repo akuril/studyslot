@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const STEPS = [
   {
     icon: '🔎',
@@ -25,14 +27,19 @@ function HomePage() {
         </p>
         <h1 className="display-5 fw-bold mb-3">Book the right tutor in a few clicks.</h1>
         <p className="lead text-secondary mx-auto mb-0" style={{ maxWidth: '40rem' }}>
-          StudySlot helps parents and guardians book tutoring sessions for students in
-          grades 6–12.
+          StudySlot helps parents and guardians book tutoring sessions for students in grades 6–12.
         </p>
       </section>
 
+      <div className="d-flex flex-column flex-sm-row justify-content-center gap-2 mb-4">
+        <Link to="/services" className="btn btn-primary btn-lg">
+          Browse tutoring services
+        </Link>
+      </div>
+
       <div className="alert alert-info text-center" role="status">
-        <strong>StudySlot is being built.</strong> Accounts, tutoring services, and booking are
-        coming next.
+        <strong>StudySlot is being built.</strong> Parent accounts and online booking are coming
+        next.
       </div>
 
       <section aria-labelledby="how-it-works">
