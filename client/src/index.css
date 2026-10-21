@@ -80,6 +80,53 @@ body {
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
 }
 
+/* ===== Pictures ===== */
+
+/* Subject pictures keep a wide 5:2 shape at every screen size */
+.subject-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 5 / 2;
+}
+
+/* Service details page: a slightly wider banner */
+.subject-art-banner {
+  aspect-ratio: 3 / 1;
+}
+
+/* Home page picture: never wider than it needs to be */
+.hero-art {
+  display: block;
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+}
+
+/* Subject tiles on the home page lift on hover, like the cards */
+.subject-tile {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.subject-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+}
+
+.subject-tile:focus-visible {
+  outline: 3px solid var(--bs-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .subject-tile,
+  .service-card,
+  .booking-card,
+  .stat-card-link {
+    transition: none;
+  }
+}
+
 /* Keyboard users see a clear outline around the whole service card */
 .service-card:focus-within,
 .booking-card:focus-within {

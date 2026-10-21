@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
 import EmptyState from '../components/EmptyState';
+import SubjectArt from '../components/SubjectArt';
 import { useApiData } from '../hooks/useApiData';
 import { useGoBack } from '../hooks/useGoBack';
 import { useAuth } from '../context/AuthContext';
@@ -71,6 +72,7 @@ function ServiceDetailsPage() {
 
       <div className="row g-4">
         <div className="col-12 col-lg-8">
+          <SubjectArt subject={service.subject} className="subject-art-banner rounded-4 shadow-sm mb-4" />
           <div className="d-flex flex-wrap gap-2 mb-3">
             <span className="badge rounded-pill bg-primary-subtle text-primary-emphasis fs-6">
               <span aria-hidden="true">{subject.icon}</span> {subject.label}

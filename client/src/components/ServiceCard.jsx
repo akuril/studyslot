@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom';
+import SubjectArt from './SubjectArt';
 import { formatGradeBand, formatPrice, getSubject } from '../utils/services';
 
 function ServiceCard({ service }) {
   const subject = getSubject(service.subject);
 
   return (
-    <article className="card border-0 shadow-sm h-100 service-card">
+    <article className="card border-0 shadow-sm h-100 overflow-hidden service-card">
+      <SubjectArt subject={service.subject} className="card-img-top" />
       <div className="card-body d-flex flex-column">
         <div className="d-flex flex-wrap gap-2 mb-2">
           <span className="badge rounded-pill bg-primary-subtle text-primary-emphasis">
