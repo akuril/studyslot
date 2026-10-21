@@ -43,7 +43,9 @@ export function onUnauthorized(handler) {
 // ===== Helpers =====
 
 function buildUrl(path, query) {
-  const url = new URL(API_BASE_URL + path);
+  // The second argument lets a relative base such as "/api" (local dev proxy) work;
+  // it is ignored when API_BASE_URL is a full URL (production).
+  const url = new URL(API_BASE_URL + path, window.location.origin);
   if (query) {
     Object.entries(query).forEach(([key, value]) => {
       // Skip empty filters so "?subject=" is never sent.
