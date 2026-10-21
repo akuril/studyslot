@@ -6,7 +6,7 @@ export const MAX_GRADE = 12;
 
 // Letters (including accented ones like "José"), spaces, hyphens, and apostrophes.
 // Must start with a letter.
-const FIRST_NAME_PATTERN = /^\p{L}[\p{L} '-]*$/u;
+export const FIRST_NAME_PATTERN = /^\p{L}[\p{L} '-]*$/u;
 
 // A copy of the service's details at the moment of booking, so a booking's
 // history never changes if the service is later renamed or repriced.
