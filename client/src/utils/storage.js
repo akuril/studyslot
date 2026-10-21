@@ -1,5 +1,5 @@
-// Small browser-storage helpers. In StudySlot, localStorage holds only
-// per-device preferences (the theme). Accounts and bookings live on the server.
+// Small browser-storage helpers. In StudySlot, localStorage holds per-device
+// preferences (the theme) and the login token. Accounts and bookings live on the server.
 
 // Every StudySlot key starts with this prefix, so they're easy to find in DevTools
 // and won't clash with other apps on the same address (localhost).
@@ -36,4 +36,20 @@ export function saveToStorage(key, value) {
     console.error(`StudySlot: could not save "${key}" to storage.`, error);
     return false;
   }
+}
+
+/** Removes a saved value. Returns true if it worked. */
+export function removeFromStorage(key) {
+  try {
+    localStorage.removeItem(STORAGE_PREFIX + key);
+    return true;
+  } catch (error) {
+    console.error(`StudySlot: could not remove "${key}" from storage.`, error);
+    return false;
+  }
+}
+
+/** The full localStorage key for `key` (used to recognize changes from other tabs). */
+export function storageKey(key) {
+  return STORAGE_PREFIX + key;
 }

@@ -1,16 +1,19 @@
 import { useCallback, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
 import EmptyState from '../components/EmptyState';
 import { useApiData } from '../hooks/useApiData';
 import { useGoBack } from '../hooks/useGoBack';
+import { useAuth } from '../context/AuthContext';
 import { getService } from '../api/services';
 import { formatGradeBand, formatPrice, getSubject } from '../utils/services';
 
 function ServiceDetailsPage() {
   const { id } = useParams();
   const goBack = useGoBack('/services');
+  const { user } = useAuth();
+  const location = useLocation();
 
   const loadService = useCallback((signal) => getService(id, { signal }), [id]);
   const { data: service, error, isLoading, retry } = useApiData(loadService);
@@ -97,13 +100,33 @@ function ServiceDetailsPage() {
                 Prices are for information. StudySlot doesn&apos;t take payments; you pay the tutor
                 directly.
               </p>
-              {/* Booking needs an account. Login arrives in Step 24 and booking in Step 25. */}
-              <button type="button" className="btn btn-primary btn-lg w-100" disabled>
-                Book this service
-              </button>
-              <p className="small text-secondary text-center mt-2 mb-0">
-                Online booking is coming soon.
-              </p>
+              {user ? (
+                <>
+                  {/* The booking form arrives in Step 25. */}
+                  <button type="button" className="btn btn-primary btn-lg w-100" disabled>
+                    Book this service
+                  </button>
+                  <p className="small text-secondary text-center mt-2 mb-0">
+                    Online booking is coming soon.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    state={{ from: location.pathname }}
+                    className="btn btn-primary btn-lg w-100"
+                  >
+                    Log in to book
+                  </Link>
+                  <p className="small text-secondary text-center mt-2 mb-0">
+                    New here?{' '}
+                    <Link to="/register" state={{ from: location.pathname }}>
+                      Create a free account
+                    </Link>
+                  </p>
+                </>
+              )}
             </div>
           </aside>
         </div>

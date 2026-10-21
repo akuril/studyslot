@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
+import { useAuth } from '../context/AuthContext';
 
-// More links (My Bookings, Log in) are added as those pages are built.
+// More links (My Bookings) are added as those pages are built.
 const navItems = [
   { to: '/', label: 'Home', icon: '🏠', end: true },
   { to: '/services', label: 'Services', icon: '📚' },
@@ -10,6 +11,7 @@ const navItems = [
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, status, logout } = useAuth();
 
   function toggleMenu() {
     setIsMenuOpen(!isMenuOpen);
@@ -18,6 +20,15 @@ function Navbar() {
   function closeMenu() {
     setIsMenuOpen(false);
   }
+
+  // On a protected page, ProtectedRoute then sends the user home.
+  // On a public page (e.g. Services), they simply stay where they are.
+  function handleLogout() {
+    closeMenu();
+    logout();
+  }
+
+  const linkClass = ({ isActive }) => `nav-link px-3 ${isActive ? 'active' : ''}`;
 
   return (
     <nav className="navbar navbar-expand-lg bg-body border-bottom shadow-sm sticky-top">
@@ -41,20 +52,52 @@ function Navbar() {
           <ul className="navbar-nav ms-auto mt-2 mt-lg-0 gap-1">
             {navItems.map((item) => (
               <li className="nav-item" key={item.to}>
-                <NavLink
-                  to={item.to}
-                  end={item.end}
-                  className={({ isActive }) => `nav-link px-3 ${isActive ? 'active' : ''}`}
-                  onClick={closeMenu}
-                >
+                <NavLink to={item.to} end={item.end} className={linkClass} onClick={closeMenu}>
                   <span aria-hidden="true">{item.icon}</span>
                   {item.label}
                 </NavLink>
               </li>
             ))}
+            {user && (
+              <li className="nav-item">
+                <NavLink to="/account" className={linkClass} onClick={closeMenu}>
+                  <span aria-hidden="true">👤</span>
+                  {user.name.split(' ')[0]}
+                </NavLink>
+              </li>
+            )}
           </ul>
 
-          <div className="ms-lg-2 mb-2 mb-lg-0">
+          {/* Nothing is shown while a saved login is being checked, to avoid a flash
+              of "Log in" for someone who is actually logged in. */}
+          {status === 'ready' && (
+            <div className="d-flex flex-column flex-lg-row gap-2 ms-lg-3 mt-2 mt-lg-0">
+              {user ? (
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary nav-button"
+                  onClick={handleLogout}
+                >
+                  Log out
+                </button>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="btn btn-outline-primary nav-button"
+                    onClick={closeMenu}
+                  >
+                    Log in
+                  </Link>
+                  <Link to="/register" className="btn btn-primary nav-button" onClick={closeMenu}>
+                    Create account
+                  </Link>
+                </>
+              )}
+            </div>
+          )}
+
+          <div className="ms-lg-2 my-2 my-lg-0">
             <ThemeToggle />
           </div>
         </div>

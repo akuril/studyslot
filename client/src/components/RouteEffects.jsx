@@ -7,6 +7,9 @@ const PAGE_TITLES = [
   [/^\/$/, 'Home'],
   [/^\/services$/, 'Tutoring Services'],
   [/^\/services\/[^/]+$/, 'Service Details'], // replaced by the service name once loaded
+  [/^\/login$/, 'Log In'],
+  [/^\/register$/, 'Create Account'],
+  [/^\/account$/, 'My Account'],
 ];
 
 function getPageTitle(pathname) {
