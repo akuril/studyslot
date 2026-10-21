@@ -6,10 +6,14 @@ import { useLocation } from 'react-router-dom';
 const PAGE_TITLES = [
   [/^\/$/, 'Home'],
   [/^\/services$/, 'Tutoring Services'],
+  [/^\/services\/[^/]+\/book$/, 'Book a Session'],
   [/^\/services\/[^/]+$/, 'Service Details'], // replaced by the service name once loaded
   [/^\/login$/, 'Log In'],
   [/^\/register$/, 'Create Account'],
   [/^\/account$/, 'My Account'],
+  [/^\/dashboard$/, 'My Bookings'],
+  [/^\/bookings\/[^/]+\/edit$/, 'Change Booking'],
+  [/^\/bookings\/[^/]+$/, 'Booking Details'],
 ];
 
 function getPageTitle(pathname) {

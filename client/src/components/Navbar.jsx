@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
 import { useAuth } from '../context/AuthContext';
 
-// More links (My Bookings) are added as those pages are built.
 const navItems = [
   { to: '/', label: 'Home', icon: '🏠', end: true },
   { to: '/services', label: 'Services', icon: '📚' },
@@ -28,7 +27,11 @@ function Navbar() {
     logout();
   }
 
+  const { pathname } = useLocation();
   const linkClass = ({ isActive }) => `nav-link px-3 ${isActive ? 'active' : ''}`;
+  // "My bookings" also stays highlighted while viewing or changing one booking.
+  const bookingsLinkClass = ({ isActive }) =>
+    linkClass({ isActive: isActive || pathname.startsWith('/bookings/') });
 
   return (
     <nav className="navbar navbar-expand-lg bg-body border-bottom shadow-sm sticky-top">
@@ -58,6 +61,14 @@ function Navbar() {
                 </NavLink>
               </li>
             ))}
+            {user && (
+              <li className="nav-item">
+                <NavLink to="/dashboard" className={bookingsLinkClass} onClick={closeMenu}>
+                  <span aria-hidden="true">🗓️</span>
+                  My bookings
+                </NavLink>
+              </li>
+            )}
             {user && (
               <li className="nav-item">
                 <NavLink to="/account" className={linkClass} onClick={closeMenu}>

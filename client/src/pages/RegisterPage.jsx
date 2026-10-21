@@ -8,7 +8,7 @@ function getReturnPath(location) {
   const from = location.state && location.state.from;
   return typeof from === 'string' && from.startsWith('/') && !from.startsWith('//')
     ? from
-    : '/account';
+    : '/dashboard';
 }
 
 function RegisterPage() {

@@ -37,11 +37,6 @@ function HomePage() {
         </Link>
       </div>
 
-      <div className="alert alert-info text-center" role="status">
-        <strong>StudySlot is being built.</strong> Parent accounts and online booking are coming
-        next.
-      </div>
-
       <section aria-labelledby="how-it-works">
         <h2 id="how-it-works" className="h4 fw-bold text-center my-4">
           How it works

@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
 import EmptyState from '../components/EmptyState';
@@ -13,7 +13,6 @@ function ServiceDetailsPage() {
   const { id } = useParams();
   const goBack = useGoBack('/services');
   const { user } = useAuth();
-  const location = useLocation();
 
   const loadService = useCallback((signal) => getService(id, { signal }), [id]);
   const { data: service, error, isLoading, retry } = useApiData(loadService);
@@ -101,27 +100,21 @@ function ServiceDetailsPage() {
                 directly.
               </p>
               {user ? (
-                <>
-                  {/* The booking form arrives in Step 25. */}
-                  <button type="button" className="btn btn-primary btn-lg w-100" disabled>
-                    Book this service
-                  </button>
-                  <p className="small text-secondary text-center mt-2 mb-0">
-                    Online booking is coming soon.
-                  </p>
-                </>
+                <Link to={`/services/${service.id}/book`} className="btn btn-primary btn-lg w-100">
+                  Book this service
+                </Link>
               ) : (
                 <>
                   <Link
                     to="/login"
-                    state={{ from: location.pathname }}
+                    state={{ from: `/services/${service.id}/book` }}
                     className="btn btn-primary btn-lg w-100"
                   >
                     Log in to book
                   </Link>
                   <p className="small text-secondary text-center mt-2 mb-0">
                     New here?{' '}
-                    <Link to="/register" state={{ from: location.pathname }}>
+                    <Link to="/register" state={{ from: `/services/${service.id}/book` }}>
                       Create a free account
                     </Link>
                   </p>

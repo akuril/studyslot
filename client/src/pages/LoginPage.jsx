@@ -4,13 +4,13 @@ import FormField from '../components/FormField';
 import { useAuth } from '../context/AuthContext';
 import { validateLogin } from '../utils/authValidation';
 
-// After logging in, go back to the page that sent the user here (or the account page).
+// After logging in, go back to the page that sent the user here (or the dashboard).
 // Only same-site paths are allowed, so a crafted link can't redirect somewhere else.
 function getReturnPath(location) {
   const from = location.state && location.state.from;
   return typeof from === 'string' && from.startsWith('/') && !from.startsWith('//')
     ? from
-    : '/account';
+    : '/dashboard';
 }
 
 function LoginPage() {

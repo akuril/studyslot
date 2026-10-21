@@ -9,6 +9,10 @@ import ServiceDetailsPage from './pages/ServiceDetailsPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AccountPage from './pages/AccountPage';
+import BookServicePage from './pages/BookServicePage';
+import DashboardPage from './pages/DashboardPage';
+import BookingDetailsPage from './pages/BookingDetailsPage';
+import EditBookingPage from './pages/EditBookingPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
@@ -26,6 +30,10 @@ function App() {
 
             {/* Pages that need a login */}
             <Route element={<ProtectedRoute />}>
+              <Route path="/services/:id/book" element={<BookServicePage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/bookings/:id" element={<BookingDetailsPage />} />
+              <Route path="/bookings/:id/edit" element={<EditBookingPage />} />
               <Route path="/account" element={<AccountPage />} />
             </Route>
 

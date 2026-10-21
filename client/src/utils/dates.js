@@ -84,7 +84,6 @@ export function formatWeekRange(weekStart) {
   return `${startText} – ${endText}`;
 }
 
-
 /** "This week", "Last week", "Next week", "3 weeks ago", or "In 2 weeks" for a week's Monday. */
 export function getRelativeWeekLabel(weekStart) {
   const thisWeekStart = getWeekStart(todayString());

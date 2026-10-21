@@ -21,7 +21,10 @@ function StatCard({ icon, label, value, tone, message, to }) {
 
   if (to) {
     return (
-      <Link to={to} className="card border-0 shadow-sm h-100 text-body text-decoration-none stat-card-link">
+      <Link
+        to={to}
+        className="card border-0 shadow-sm h-100 text-body text-decoration-none stat-card-link"
+      >
         {content}
       </Link>
     );
