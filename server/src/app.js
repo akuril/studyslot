@@ -1,5 +1,6 @@
 import express from 'express';
 import helmet from 'helmet';
+import cors from 'cors';
 
 import { config } from './config/env.js';
 import healthRoutes from './routes/healthRoutes.js';
@@ -22,6 +23,19 @@ if (config.isProduction) {
 
 // Security headers (and hides the "X-Powered-By: Express" header).
 app.use(helmet());
+
+// CORS: browsers block a web page from calling an API on a different origin
+// (localhost:5173 -> localhost:5000) unless the API allows it. We allow exactly ONE
+// origin, the React app (CLIENT_ORIGIN). Login uses the Authorization header,
+// not cookies, so `credentials` stays off.
+app.use(
+  cors({
+    origin: config.clientOrigin,
+    methods: ['GET', 'POST', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    maxAge: 600, // browsers may cache the preflight answer for 10 minutes
+  }),
+);
 
 // One safe log line per request (skipped during automated tests to keep output readable).
 if (config.nodeEnv !== 'test') {
