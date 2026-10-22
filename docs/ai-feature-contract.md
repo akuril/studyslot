@@ -167,6 +167,12 @@ Grade narrows the candidates as above. It returns the top 3 with score > 0 and r
   - no names or emails are sent
   - this is documented in the README "Responsible AI" section
 - **Retention on our side:** none.
+- **OpenRouter account settings (decided in Step 29):** free models only work when the account allows them. Settings → Privacy:
+  - **Zero Data Retention → "All other models": off.** When it's on, every free endpoint is excluded and requests fail with 404 `zdr-violation-by-account`.
+  - **Data Training → "Allow free endpoints that train on request data": on.** Paid endpoints that train stay **off**.
+  - Trade-off: a $0 AI feature, but the free provider may keep and train on the description. Acceptable for a capstone demo **because** of the mitigations above. A production app would use a paid, non-training (ZDR) endpoint.
+- **Model:** `AI_MODEL=nvidia/nemotron-3.5-super-vl:free` (it supports `structured_outputs`). `minimax/minimax-m3.1-flash:free` was rejected: it offers JSON mode only, with no guaranteed schema.
+- **Implementation (Step 30):** `services/openRouterClient.js` (the provider call, 15 s timeout, errors mapped to a short `kind`), `services/aiService.js` (catalog, prompt, output validation, fallback switch), `services/recommendationFallback.js` (keyword matcher). The client asks reasoning models for low effort, and never asks for their reasoning text.
 
 ## 10. Errors from the endpoint
 

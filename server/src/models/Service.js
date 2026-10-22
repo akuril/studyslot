@@ -16,6 +16,11 @@ export const SERVICE_SUBJECTS = [
 export const GRADE_BANDS = ['6-8', '9-12', '6-12'];
 export const SERVICE_DURATIONS = [30, 45, 60, 90];
 
+/** Which grade bands include a given grade. A 7th grader fits "6-8" AND "6-12" services. */
+export function gradeBandsForGrade(grade) {
+  return grade <= 8 ? ['6-8', '6-12'] : ['9-12', '6-12'];
+}
+
 const serviceSchema = new mongoose.Schema(
   {
     name: {

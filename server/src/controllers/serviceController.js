@@ -1,11 +1,6 @@
-import { Service, SERVICE_SUBJECTS } from '../models/Service.js';
+import { Service, SERVICE_SUBJECTS, gradeBandsForGrade } from '../models/Service.js';
 import { ApiError } from '../utils/ApiError.js';
 import { FieldErrors, readInteger } from '../utils/validation.js';
-
-// Which grade bands include a given grade. A 7th grader fits "6-8" AND "6-12" services.
-function gradeBandsForGrade(grade) {
-  return grade <= 8 ? ['6-8', '6-12'] : ['9-12', '6-12'];
-}
 
 // Builds a SAFE MongoDB filter from the query string. Only approved fields with
 // approved values ever reach the database; anything else is a 400.
