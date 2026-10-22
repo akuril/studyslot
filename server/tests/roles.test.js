@@ -21,13 +21,13 @@ const alice = new User({ name: 'Alice Parent', email: 'alice@example.com', passw
 const bob = new User({ name: 'Bob Parent', email: 'bob@example.com', passwordHash: 'x' });
 const tutorLane = new User({
   name: 'Ms. Avery Lane',
-  email: 'avery.lane@tutors.studyslot.example',
+  email: 'avery.lane@tutors.studyslot',
   passwordHash: 'x',
   role: 'tutor',
 });
 const tutorGrant = new User({
   name: 'Mr. Theo Grant',
-  email: 'theo.grant@tutors.studyslot.example',
+  email: 'theo.grant@tutors.studyslot',
   passwordHash: 'x',
   role: 'tutor',
 });
@@ -302,10 +302,15 @@ test("403/404/400: other tutor's session, unknown id, bad input", async () => {
 });
 
 test('tutor login emails are made from the tutor name', () => {
-  assert.equal(tutorEmail('Ms. Avery Lane'), 'avery.lane@tutors.studyslot.example');
-  assert.equal(tutorEmail('Sra. Lucia Fernandez'), 'lucia.fernandez@tutors.studyslot.example');
-  assert.equal(tutorEmail('Mme. Élise Laurent'), 'elise.laurent@tutors.studyslot.example');
-  assert.equal(tutorEmail('Dr. Priya Nair'), 'priya.nair@tutors.studyslot.example');
+  assert.equal(tutorEmail('Ms. Avery Lane'), 'avery.lane@tutors.studyslot');
+  assert.equal(tutorEmail('Sra. Lucia Fernandez'), 'lucia.fernandez@tutors.studyslot');
+  assert.equal(tutorEmail('Mme. Élise Laurent'), 'elise.laurent@tutors.studyslot');
+  assert.equal(tutorEmail('Dr. Priya Nair'), 'priya.nair@tutors.studyslot');
+  // Old-style emails, used to find accounts to rename.
+  assert.equal(
+    tutorEmail('Ms. Avery Lane', 'tutors.studyslot.example'),
+    'avery.lane@tutors.studyslot.example',
+  );
 });
 
 // ===== Saved students =====

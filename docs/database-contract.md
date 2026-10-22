@@ -165,7 +165,7 @@ Each seed also has a `summary` (≤160 characters) and `description` (≤1000 ch
 |---|---|---|
 | role | String | `parent` (default) or `tutor`; **immutable**; never accepted from a request body |
 
-Tutor accounts are created only by `npm run seed:tutors`. Their emails are `first.last@tutors.studyslot.example`, and the starting password comes from `TUTOR_SEED_PASSWORD` (a local-only variable, never committed).
+Tutor accounts are created only by `npm run seed:tutors`. Their emails are `first.last@tutors.studyslot` (not a real internet domain, so never a real inbox; accounts made with the earlier `@tutors.studyslot.example` emails are renamed in place by the same script), and the starting password comes from `TUTOR_SEED_PASSWORD` (a local-only variable, never committed).
 
 ### services
 | Field | Type | Rules |

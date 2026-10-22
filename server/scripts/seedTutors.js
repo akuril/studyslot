@@ -7,8 +7,10 @@
 // Tutor accounts can't be created through sign-up (sign-up always makes a parent),
 // so this script is the only way they are made.
 //
-// Login emails are made from the tutor's name: "Ms. Avery Lane" -> avery.lane@tutors.studyslot.example
-// (.example is a reserved domain, so these can never be real inboxes).
+// Login emails are made from the tutor's name: "Ms. Avery Lane" -> avery.lane@tutors.studyslot
+// ("tutors.studyslot" is not a real internet domain, so these can never be real inboxes).
+// Accounts made earlier with the old "...@tutors.studyslot.example" emails are renamed
+// in place (same account, same password, same sessions).
 // Every NEW tutor account gets the password in TUTOR_SEED_PASSWORD (server/.env).
 // That variable is only needed while running this script; never commit its value.
 //
@@ -24,15 +26,16 @@ import { User } from '../src/models/User.js';
 import { Service } from '../src/models/Service.js';
 import { hashPassword } from '../src/services/authService.js';
 
-const EMAIL_DOMAIN = 'tutors.studyslot.example';
+const EMAIL_DOMAIN = 'tutors.studyslot';
+const OLD_EMAIL_DOMAINS = ['tutors.studyslot.example'];
 const TITLES = /^(ms|mr|mrs|mx|dr|sra|sr|mme|m)\.?\s+/i;
 
 const args = process.argv.slice(2);
 const skipPrompt = args.includes('--yes');
 const allowProduction = args.includes('--allow-production');
 
-/** "Ms. Avery Lane" -> "avery.lane@tutors.studyslot.example" */
-export function tutorEmail(tutorName) {
+/** "Ms. Avery Lane" -> "avery.lane@tutors.studyslot" */
+export function tutorEmail(tutorName, domain = EMAIL_DOMAIN) {
   const withoutTitle = tutorName.replace(TITLES, '');
   const local = withoutTitle
     .normalize('NFD')
@@ -40,7 +43,7 @@ export function tutorEmail(tutorName) {
     .toLowerCase()
     .replace(/[^a-z]+/g, '.')
     .replace(/^\.+|\.+$/g, '');
-  return `${local}@${EMAIL_DOMAIN}`;
+  return `${local}@${domain}`;
 }
 
 function readSeedPassword() {
@@ -90,7 +93,12 @@ async function seedTutors() {
       tutorNames.map(async (name) => {
         const email = tutorEmail(name);
         const existing = await User.findOne({ email });
-        return { name, email, existing };
+        // An account from before the email change, to rename instead of duplicating.
+        const oldEmails = OLD_EMAIL_DOMAINS.map((domain) => tutorEmail(name, domain));
+        const renamable = existing
+          ? null
+          : await User.findOne({ email: { $in: oldEmails }, role: 'tutor' });
+        return { name, email, existing, renamable };
       }),
     );
 
@@ -102,11 +110,17 @@ async function seedTutors() {
       return;
     }
 
-    const toCreate = plan.filter((item) => !item.existing);
+    const toCreate = plan.filter((item) => !item.existing && !item.renamable);
+    const toRename = plan.filter((item) => item.renamable);
     console.log(`\nDatabase: ${mongoose.connection.name}`);
     console.log(`Tutors in the catalog: ${plan.length}`);
     console.log(`Will CREATE ${toCreate.length} tutor account(s) with TUTOR_SEED_PASSWORD.`);
-    console.log(`Will KEEP ${plan.length - toCreate.length} existing tutor account(s) unchanged.`);
+    console.log(
+      `Will RENAME ${toRename.length} tutor login(s) to the new @${EMAIL_DOMAIN} emails.`,
+    );
+    console.log(
+      `Will KEEP ${plan.length - toCreate.length - toRename.length} existing tutor account(s) unchanged.`,
+    );
     console.log('Will LINK every service to its tutor account by tutor name.\n');
 
     if (!(await confirm('Type "yes" to continue: '))) {
@@ -117,9 +131,19 @@ async function seedTutors() {
     const passwordHash = await hashPassword(password);
     let linked = 0;
     for (const item of plan) {
-      const tutor =
-        item.existing ||
-        (await User.create({ name: item.name, email: item.email, passwordHash, role: 'tutor' }));
+      let tutor = item.existing;
+      if (!tutor && item.renamable) {
+        item.renamable.email = item.email; // same account and password, new login email
+        tutor = await item.renamable.save();
+      }
+      if (!tutor) {
+        tutor = await User.create({
+          name: item.name,
+          email: item.email,
+          passwordHash,
+          role: 'tutor',
+        });
+      }
       const result = await Service.updateMany(
         { tutorName: item.name },
         { $set: { tutor: tutor._id } },
@@ -129,7 +153,7 @@ async function seedTutors() {
 
     console.log(`Done. Linked ${linked} service(s).`);
     console.log('\nTutor logins (password = your TUTOR_SEED_PASSWORD):');
-    plan.forEach((item) => console.log(`  ${item.email.padEnd(45)} ${item.name}`));
+    plan.forEach((item) => console.log(`  ${item.email.padEnd(40)} ${item.name}`));
   } finally {
     await disconnectFromDatabase();
   }
