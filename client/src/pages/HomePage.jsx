@@ -28,11 +28,15 @@ function HomePage() {
         <div className="col-12 col-lg-6 text-center text-lg-start">
           <h1 className="display-5 fw-bold mb-3">Book the right tutor in a few clicks.</h1>
           <p className="lead text-secondary mb-4">
-            StudySlot helps parents and guardians book tutoring sessions for students in grades 6–12.
+            StudySlot helps parents and guardians book tutoring sessions for students in grades
+            6–12.
           </p>
           <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-start gap-2">
             <Link to="/services" className="btn btn-primary btn-lg">
               Browse tutoring services
+            </Link>
+            <Link to="/find-help" className="btn btn-outline-primary btn-lg">
+              ✨ Get an AI suggestion
             </Link>
           </div>
         </div>

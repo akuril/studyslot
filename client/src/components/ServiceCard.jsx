@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import SubjectArt from './SubjectArt';
+import Avatar from './Avatar';
+import { motifFor } from '../utils/serviceArt';
 import { formatGradeBand, formatPrice, getSubject } from '../utils/services';
 
 function ServiceCard({ service }) {
@@ -7,7 +9,7 @@ function ServiceCard({ service }) {
 
   return (
     <article className="card border-0 shadow-sm h-100 overflow-hidden service-card">
-      <SubjectArt subject={service.subject} className="card-img-top" />
+      <SubjectArt subject={service.subject} motif={motifFor(service)} className="card-img-top" />
       <div className="card-body d-flex flex-column">
         <div className="d-flex flex-wrap gap-2 mb-2">
           <span className="badge rounded-pill bg-primary-subtle text-primary-emphasis">
@@ -31,8 +33,11 @@ function ServiceCard({ service }) {
         <p className="text-secondary flex-grow-1">{service.summary}</p>
 
         <div className="d-flex justify-content-between align-items-center small border-top pt-2">
-          <span className="text-secondary">
-            {service.tutorName} · {service.durationMinutes} min
+          <span className="text-secondary d-flex align-items-center gap-2 min-w-0">
+            <Avatar name={service.tutorName} size="sm" />
+            <span className="text-truncate">
+              {service.tutorName} · {service.durationMinutes} min
+            </span>
           </span>
           <span className="fw-bold">{formatPrice(service.priceCents)}</span>
         </div>

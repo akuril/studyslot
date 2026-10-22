@@ -70,7 +70,9 @@ body {
 .stat-card-link,
 .service-card,
 .booking-card {
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .stat-card-link:hover,
@@ -105,7 +107,9 @@ body {
 
 /* Subject tiles on the home page lift on hover, like the cards */
 .subject-tile {
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .subject-tile:hover {
@@ -125,6 +129,88 @@ body {
   .stat-card-link {
     transition: none;
   }
+}
+
+/* AI suggestion cards: the picture fills the left column on wider screens */
+.suggestion-art {
+  height: 100%;
+  min-height: 120px;
+  aspect-ratio: auto;
+}
+
+.find-help-results:focus {
+  outline: none;
+}
+
+/* ===== Week schedule ===== */
+
+/* Phones: one day per row. Tablets and up: 6 columns, Monday to Saturday. */
+.week-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .week-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .week-day {
+    min-height: 9rem;
+  }
+}
+
+.week-day {
+  background-color: var(--bs-tertiary-bg);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  min-width: 0;
+}
+
+.week-day-today {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: -2px;
+}
+
+.week-session {
+  border-left: 4px solid var(--bs-primary);
+  background-color: var(--bs-body-bg);
+  color: var(--bs-primary-text-emphasis);
+}
+
+.week-session:hover,
+.week-session:focus-visible {
+  background-color: var(--bs-primary-bg-subtle);
+}
+
+.week-session-completed {
+  border-left-color: var(--bs-success);
+  color: var(--bs-success-text-emphasis);
+}
+
+/* The "Up next" card sits inside another card, so it takes its natural height */
+.up-next .booking-card {
+  height: auto !important;
+}
+
+/* ===== Dashboard welcome banner ===== */
+
+.welcome-banner {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #ffffff;
+}
+
+.welcome-banner .text-white-75 {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.welcome-banner .avatar {
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.35);
+}
+
+.tutor-banner {
+  background: linear-gradient(135deg, #0f766e, #0369a1);
 }
 
 /* Keyboard users see a clear outline around the whole service card */

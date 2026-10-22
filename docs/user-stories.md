@@ -3,7 +3,7 @@
 Approved: 2026-10-19
 
 **Roles:** Guest (not logged in) · Parent (registered parent/guardian) · AI-assisted interaction.
-No administrator role: the service catalog is managed by a seed script.
+No administrator role: the service catalog is managed by a seed script. (Update, Steps 33–38: tutors now have their own accounts, created by a seed script, not by sign-up. They are not admins.)
 
 Priority: **M** = Must Have · **S** = Should Have · **O** = Optional
 
@@ -63,8 +63,22 @@ Priority: **M** = Must Have · **S** = Should Have · **O** = Optional
 
 ## Out of scope
 
-Payments · email/SMS · chat · tutor accounts or availability calendars · admin dashboard · password reset · student logins · multiple organizations · recurring bookings.
+Payments · email/SMS · chat · tutor availability calendars · tutor self sign-up · admin dashboard · password reset · student logins · multiple organizations · recurring bookings.
 
 ## New client pages
 
 /services · /services/:id · /services/:id/book · /login · /register · /dashboard · /bookings/:id · /bookings/:id/edit · /find-help
+
+
+## Added in Steps 33–38
+
+| ID | Story | Acceptance criteria |
+|---|---|---|
+| P10 | As a parent, I want my own dashboard with my avatar, so I can see my week at a glance. | Greeting with initials avatar; stats; "Up next"; Monday–Saturday week view with previous/next; Upcoming, Completed, and Cancelled lists |
+| P11 | As a parent, I want to save my students once, so booking is faster. | Add, edit, and remove (first name and grade 6–12); duplicates and an 11th student are refused; the booking form offers saved students that fit the service's grades; "Save … for next time" checkbox |
+| P12 | As a parent, I want tips to prepare for a session. | "Get prep tips" on an upcoming booking returns 3–5 tips (AI, or general tips if the AI is down); shared AI limits |
+| P13 | As a parent, I want to see what the tutor covered. | The tutor's summary and completion time appear on the booking |
+| T1 | As a tutor, I want to log in and see only my sessions. | `/tutor` dashboard: today, upcoming, and to-complete counts; week view; student first name, grade, and the parent's notes |
+| T2 | As a tutor, I want to mark a session completed with a summary. | Available once the session starts; optional summary (max 500); can't complete twice, a cancelled session, or another tutor's session |
+| T3 | As a tutor, I must not use parent features. | Parent pages redirect to `/tutor`; the API returns 403 |
+| S1 | As the business, one tutor can't be double-booked. | Overlap is checked across all services taught by the same tutor |

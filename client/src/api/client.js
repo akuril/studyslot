@@ -76,7 +76,7 @@ async function readBody(response) {
  *
  * @param {string} path        e.g. '/services' or `/bookings/${id}`
  * @param {object} [options]
- * @param {string} [options.method]  'GET' (default), 'POST', or 'PATCH'
+ * @param {string} [options.method]  'GET' (default), 'POST', 'PATCH', or 'DELETE'
  * @param {object} [options.body]    sent as JSON
  * @param {object} [options.query]   added to the URL as ?key=value
  * @param {AbortSignal} [options.signal]  lets a component cancel the request (e.g. on unmount)

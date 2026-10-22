@@ -168,12 +168,25 @@ export function formatSessionTime(startIso, endIso) {
 
 // ===== Booking status (mirrors the server) =====
 
-/** 'upcoming' | 'completed' | 'cancelled' — "completed" is calculated, never stored. */
+/**
+ * 'upcoming' | 'completed' | 'cancelled'.
+ * Completed = the tutor marked it completed, OR its end time has passed.
+ */
 export function getDisplayStatus(booking, now = new Date()) {
   if (booking.status === 'cancelled') {
     return 'cancelled';
   }
+  if (booking.completedAt) {
+    return 'completed';
+  }
   return new Date(booking.endTime) <= now ? 'completed' : 'upcoming';
+}
+
+/** For tutors: confirmed, already started, and not yet marked completed. */
+export function needsCompleting(booking, now = new Date()) {
+  return (
+    booking.status === 'confirmed' && !booking.completedAt && new Date(booking.startTime) <= now
+  );
 }
 
 /** True if the booking can still be rescheduled, edited, or cancelled. */

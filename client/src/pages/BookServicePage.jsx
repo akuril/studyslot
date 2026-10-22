@@ -8,6 +8,9 @@ import TimeSlotPicker from '../components/TimeSlotPicker';
 import { useApiData } from '../hooks/useApiData';
 import { getService } from '../api/services';
 import { createBooking } from '../api/bookings';
+import { createStudent, getStudents } from '../api/students';
+import Avatar from '../components/Avatar';
+import { MAX_STUDENTS } from '../utils/students';
 import { formatGradeBand, formatPrice } from '../utils/services';
 import { NOTES_MAX, validateBookingForm } from '../utils/bookingValidation';
 
@@ -17,7 +20,7 @@ function gradesForBand(gradeBand) {
   return Array.from({ length: high - low + 1 }, (_, index) => low + index);
 }
 
-function BookingForm({ service }) {
+function BookingForm({ service, students }) {
   const navigate = useNavigate();
   const grades = gradesForBand(service.gradeBand);
   const [form, setForm] = useState({
@@ -30,6 +33,26 @@ function BookingForm({ service }) {
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [saveStudent, setSaveStudent] = useState(true);
+
+  const typedName = form.studentFirstName.trim();
+  const isSavedAlready = students.some(
+    (student) => student.firstName.toLowerCase() === typedName.toLowerCase(),
+  );
+  const canOfferSave =
+    typedName !== '' &&
+    form.studentGrade !== '' &&
+    !isSavedAlready &&
+    students.length < MAX_STUDENTS;
+
+  function pickStudent(student) {
+    setForm((current) => ({
+      ...current,
+      studentFirstName: student.firstName,
+      studentGrade: String(student.grade),
+    }));
+    setErrors((current) => ({ ...current, studentFirstName: '', studentGrade: '' }));
+  }
 
   function setField(name, value) {
     setForm((current) => ({ ...current, [name]: value }));
@@ -58,6 +81,11 @@ function BookingForm({ service }) {
         startTime: form.startTime,
         notes: form.notes.trim(),
       });
+      // Optional convenience: remember this student for next time. A failure here
+      // (e.g. saved in another tab meanwhile) must not hide the successful booking.
+      if (canOfferSave && saveStudent) {
+        await createStudent({ firstName: typedName, grade: form.studentGrade }).catch(() => {});
+      }
       navigate(`/bookings/${booking.id}`, {
         replace: true,
         state: { message: 'Your session is booked!' },
@@ -79,6 +107,38 @@ function BookingForm({ service }) {
         <div className="alert alert-danger" role="alert">
           {serverError}
         </div>
+      )}
+
+      {students.length > 0 && (
+        <fieldset className="mb-3">
+          <legend className="form-label fw-semibold fs-6">Who is this session for?</legend>
+          <div className="d-flex flex-wrap gap-2">
+            {students.map((student) => {
+              const fits = grades.includes(student.grade);
+              const isPicked =
+                form.studentFirstName === student.firstName &&
+                form.studentGrade === String(student.grade);
+              return (
+                <button
+                  type="button"
+                  key={student.id}
+                  className={`btn d-inline-flex align-items-center gap-2 ${isPicked ? 'btn-primary' : 'btn-outline-secondary'}`}
+                  onClick={() => pickStudent(student)}
+                  disabled={!fits}
+                  aria-pressed={isPicked}
+                  title={
+                    fits ? undefined : `This service is for ${service.gradeBand.replace('-', '–')}`
+                  }
+                >
+                  <Avatar name={student.firstName} size="sm" />
+                  {student.firstName} · Grade {student.grade}
+                  {!fits && <span className="visually-hidden"> (grade not covered)</span>}
+                </button>
+              );
+            })}
+          </div>
+          <div className="form-text">Or type a different student below.</div>
+        </fieldset>
       )}
 
       <FormField
@@ -115,6 +175,21 @@ function BookingForm({ service }) {
         </select>
         {errors.studentGrade && <div className="invalid-feedback">{errors.studentGrade}</div>}
       </div>
+
+      {canOfferSave && (
+        <div className="form-check mb-3">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="booking-save-student"
+            checked={saveStudent}
+            onChange={(event) => setSaveStudent(event.target.checked)}
+          />
+          <label className="form-check-label" htmlFor="booking-save-student">
+            Save {typedName} to My students for next time
+          </label>
+        </div>
+      )}
 
       <TimeSlotPicker
         date={form.date}
@@ -157,8 +232,16 @@ function BookingForm({ service }) {
 
 function BookServicePage() {
   const { id } = useParams();
-  const loadService = useCallback((signal) => getService(id, { signal }), [id]);
-  const { data: service, error, isLoading, retry } = useApiData(loadService);
+  // The service and the parent's saved students load together.
+  const loadPage = useCallback(
+    (signal) =>
+      Promise.all([getService(id, { signal }), getStudents({ signal })]).then(
+        ([service, students]) => ({ service, students }),
+      ),
+    [id],
+  );
+  const { data, error, isLoading, retry } = useApiData(loadPage);
+  const service = data && data.service;
 
   if (isLoading) {
     return <LoadingState label="Loading service…" />;
@@ -194,7 +277,7 @@ function BookServicePage() {
               {service.durationMinutes} min · {formatPrice(service.priceCents)} ·{' '}
               {formatGradeBand(service.gradeBand)}
             </p>
-            <BookingForm service={service} />
+            <BookingForm service={service} students={data.students} />
           </div>
         </div>
       </div>

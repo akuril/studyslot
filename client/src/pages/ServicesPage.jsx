@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import ServiceCard from '../components/ServiceCard';
 import LoadingState from '../components/LoadingState';
@@ -45,7 +45,11 @@ function ServicesPage() {
       <PageHeader
         title="Tutoring services"
         subtitle="One-on-one help for students in grades 6–12. Pick a service to see details."
-      />
+      >
+        <Link to="/find-help" className="btn btn-outline-primary">
+          ✨ Not sure? Get an AI suggestion
+        </Link>
+      </PageHeader>
 
       <form
         className="card border-0 shadow-sm mb-4"

@@ -152,3 +152,28 @@ studyslot/
 | src/pages/HomePage.jsx | Replace the "being built" notice with calls to action |
 | src/index.css | Small additions for new cards and forms |
 | src/utils/dates.js | Date-and-time helpers for booking times |
+
+
+## Roles and authorization (Steps 33–38)
+
+```
+request → authenticate (who? 401) → requireRole('parent' | 'tutor') (which kind of account? 403)
+        → ownership check in the service layer (is it YOURS? 403/404) → controller
+```
+
+- `middleware/requireRole.js`: route-level account type checks.
+- `services/bookingAccess.js`:
+  - `findOwnedBooking`: parent owner, used for changes.
+  - `findTutorBooking`: the tutor of the booking's service.
+  - `findViewableBooking`: either one, for reading.
+- `services/bookingRules.js#findServiceIdsSharingTutor`: overlap is checked per tutor.
+- `services/aiPrepService.js`: the second AI feature (prep tips). It shares `aiClient.js` and the per-user AI limits.
+- **Client:**
+  - `RoleRoute` keeps each account type on its own pages: parents on `/dashboard`, `/find-help`, and booking pages; tutors on `/tutor`.
+  - `utils/roles.js` picks each account's home page.
+  - The server remains the real gate.
+- **UI building blocks:**
+  - `Avatar`: initials, with a color chosen from the name.
+  - `WeekSchedule`: Monday–Saturday in Eastern Time.
+  - `StudentsPanel`, `PrepTipsPanel`, `CompleteSessionForm`.
+  - `SubjectArt` with one SVG motif per service (`utils/serviceArt.js`).

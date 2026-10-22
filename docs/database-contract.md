@@ -156,3 +156,42 @@ Each seed also has a `summary` (≤160 characters) and `description` (≤1000 ch
 | assignment.notes | booking.notes | Same 300-character limit |
 | assignment.completed | computed "Completed" | From endTime < now |
 | assignment.title / type / priority / subtasks / completedAt | none | Not carried over |
+
+
+## Changes for roles, tutors, and saved students (Steps 33–38)
+
+### users
+| Field | Type | Rules |
+|---|---|---|
+| role | String | `parent` (default) or `tutor`; **immutable**; never accepted from a request body |
+
+Tutor accounts are created only by `npm run seed:tutors`. Their emails are `first.last@tutors.studyslot.example`, and the starting password comes from `TUTOR_SEED_PASSWORD` (a local-only variable, never committed).
+
+### services
+| Field | Type | Rules |
+|---|---|---|
+| tutor | ObjectId → users | Optional. Linked by `seed:tutors` by `tutorName`; indexed; not returned by the API |
+
+### bookings
+| Field | Type | Rules |
+|---|---|---|
+| completedAt | Date \| null | Set by the tutor after the session starts. Only confirmed bookings can be completed |
+| tutorSummary | String | Optional, max 500, trimmed, default `""` |
+
+Display status: **completed** = `completedAt` is set, OR the end time has passed.
+
+### students (new collection)
+| Field | Type | Rules |
+|---|---|---|
+| parent | ObjectId → users | Required, immutable, set from the token |
+| firstName | String | Required, trimmed, max 40, same pattern as bookings |
+| firstNameKey | String | Lowercase copy of firstName (not returned) |
+| grade | Number | Required whole number 6–12 |
+| createdAt / updatedAt | Date | Timestamps |
+
+- Unique index `{ parent, firstNameKey }`: no duplicate first names per parent.
+- At most 10 students per parent (checked by the API).
+
+### Seed data
+
+The catalog now has 40 services: 39 active plus the inactive Summer Math Bridge, across all 9 subjects and 22 fictional tutors.

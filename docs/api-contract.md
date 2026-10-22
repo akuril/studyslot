@@ -93,6 +93,13 @@ Base URL: `http://localhost:5000/api` (development) · `https://SERVICE-NAME.onr
 | PATCH | /bookings/:id | Reschedule and/or edit notes | Yes, owner | 200 `Booking` |
 | POST | /bookings/:id/cancel | Cancel (status → cancelled) | Yes, owner | 200 `Booking` |
 | POST | /ai/recommend-service | AI service recommendation | Yes (rate-limited) | 200 recommendation |
+| POST | /ai/session-prep | AI prep tips for one confirmed session | Yes, booking's parent or tutor (rate-limited) | 200 `{ tips, disclaimer, source }` |
+| GET | /students | My saved students (A–Z) | Yes, parent | 200 `Student[]` |
+| POST | /students | Save a student `{ firstName, grade }` | Yes, parent | 201 `Student` |
+| PATCH | /students/:id | Rename / change grade | Yes, parent, owner | 200 `Student` |
+| DELETE | /students/:id | Remove a saved student | Yes, parent, owner | 204 |
+| GET | /tutor/sessions | Every booking for my services | Yes, tutor | 200 `Booking[]` |
+| POST | /tutor/sessions/:id/complete | Mark a started session completed `{ summary? }` | Yes, tutor of that service | 200 `Booking` |
 
 There are no service create/update/delete endpoints, because there is no admin role. Services come from the seed script.
 
@@ -213,7 +220,48 @@ There are no service create/update/delete endpoints, because there is no admin r
 
 | Routes | Limit | Keyed by |
 |---|---|---|
-| /auth/register, /auth/login | 10 requests / 15 minutes | IP address |
-| /ai/recommend-service | 5 / minute and 20 / day | User id |
+| /auth/register, /auth/login | 10 requests / 15 minutes (200 when `NODE_ENV=development`) | IP address |
+| /ai/recommend-service and /ai/session-prep (shared) | 5 / minute and 20 / day | User id |
 
 Limits are kept in memory and reset when the server restarts. That's acceptable for a single-instance capstone deployment and is documented as a limitation.
+
+
+## Roles (added Steps 33–38)
+
+Every user has `role`: `"parent"` (everyone who signs up) or `"tutor"` (created only by `npm run seed:tutors`). The role is returned in `user` from register, login, and `/auth/me`, can never be changed, and is enforced on the server by `requireRole`:
+
+| Route group | parent | tutor |
+|---|---|---|
+| POST /bookings, GET /bookings/mine, PATCH /bookings/:id, POST /bookings/:id/cancel | ✅ (own bookings) | 403 `Only parent accounts can do this` |
+| GET /bookings/:id | ✅ own booking | ✅ sessions for their services; another tutor's → 403 |
+| /students | ✅ own students | 403 |
+| /tutor/* | 403 `Only tutor accounts can do this` | ✅ own services only |
+| POST /ai/session-prep | ✅ own booking | ✅ their session |
+
+### Saved students
+
+- `Student`: `{ id, firstName, grade, createdAt }`. The parent link is never returned.
+- `firstName` uses the same rules as a booking (letters, spaces, `-`, `'`; max 40); `grade` is 6–12.
+- **409** for a duplicate first name for the same parent (case-insensitive) or more than 10 students.
+- **403** for someone else's student, **404** unknown id, **400** for validation and unknown fields.
+- Deleting a student never changes past bookings, which keep their own copy of the name and grade.
+
+### Tutor sessions
+
+- `GET /tutor/sessions` returns bookings for every service linked to the tutor's account, soonest first. The tutor comes from the token only.
+- `POST /tutor/sessions/:id/complete` body `{ summary? }` (max 500):
+  - 200: sets `completedAt` and `tutorSummary`; the parent sees both on the booking.
+  - 409: the session hasn't started, is cancelled, or was already completed.
+  - 403: another tutor's session. 400: unknown fields such as `status`.
+- Bookings now include `completedAt` (null until marked) and `tutorSummary` (`""` until written).
+
+### Booking overlap (changed)
+
+A new or rescheduled booking must not overlap any **confirmed** booking for **any service taught by the same tutor** (one tutor can't be in two places). Services without a linked tutor account only check themselves.
+
+### POST /ai/session-prep
+
+- Body `{ bookingId }` only.
+- **200** `{ tips: string[3..5], disclaimer, source: "ai" | "fallback" }`. The fallback gives built-in subject tips when the AI is unavailable.
+- **400** invalid id. **403/404** not the booking's parent or tutor, or unknown. **409** the booking is cancelled.
+- Sent to the AI: service name, subject, grade band, student grade, and the parent's notes with the student's first name replaced by "the student". Nothing is stored.

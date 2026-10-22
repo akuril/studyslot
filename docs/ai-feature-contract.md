@@ -187,3 +187,19 @@ Grade narrows the candidates as above. It returns the top 3 with score > 0 and r
 | 200 | AI success, fallback, or no match | the response shape above |
 
 The provider failing is **not** an error for the user: it returns 200 with `source: "fallback"`.
+
+
+## Second AI feature: session prep tips (Step 38)
+
+- **Where:** "✨ Get ready for this session" on an upcoming booking's page, for the booking's parent or tutor.
+- **Route:** `POST /api/ai/session-prep` `{ bookingId }`.
+  - Requires login.
+  - Shares the same 5/minute and 20/day per-user limits as recommendations.
+  - Only confirmed bookings get tips (409 otherwise).
+- **Sent to the model:** service name, subject, grade band, student grade, and the parent's notes.
+  - The student's first name is replaced with "the student".
+  - `<<<`/`>>>` markers are stripped.
+  - The notes are fenced as data.
+- **Output:** JSON schema `{ tips: string[3..5] }`. The server trims each tip, removes duplicates, caps each at 160 characters, and requires at least 3 tips.
+- **Fallback:** built-in tips per subject plus general tips (`source: "fallback"`) when the AI isn't configured, times out, is rate-limited, or answers badly.
+- **Privacy:** nothing is stored, and the notes are never logged. Log line: `AI prep tips: source=… latencyMs=… tips=…`.

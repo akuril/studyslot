@@ -4,14 +4,28 @@ import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
 import EmptyState from '../components/EmptyState';
 import BookingStatusBadge from '../components/BookingStatusBadge';
+import Avatar from '../components/Avatar';
+import CompleteSessionForm from '../components/CompleteSessionForm';
+import PrepTipsPanel from '../components/PrepTipsPanel';
+import { useAuth } from '../context/AuthContext';
+import { isTutor } from '../utils/roles';
 import { useApiData } from '../hooks/useApiData';
 import { cancelBooking, getBooking } from '../api/bookings';
-import { formatDateTime, formatSessionTime, isChangeable } from '../utils/bookingTime';
+import {
+  formatDateTime,
+  formatSessionTime,
+  getDisplayStatus,
+  isChangeable,
+  needsCompleting,
+} from '../utils/bookingTime';
 import { formatPrice } from '../utils/services';
 
 function BookingDetailsPage() {
   const { id } = useParams();
   const location = useLocation();
+  const { user } = useAuth();
+  const tutor = isTutor(user);
+  const homePath = tutor ? '/tutor' : '/dashboard';
   const loadBooking = useCallback((signal) => getBooking(id, { signal }), [id]);
   const { data, error, isLoading, retry } = useApiData(loadBooking);
 
@@ -45,8 +59,8 @@ function BookingDetailsPage() {
   }
 
   const backLink = (
-    <Link to="/dashboard" className="btn btn-link px-0 mb-3">
-      ← My bookings
+    <Link to={homePath} className="btn btn-link px-0 mb-3">
+      ← {tutor ? 'My schedule' : 'My dashboard'}
     </Link>
   );
 
@@ -66,8 +80,8 @@ function BookingDetailsPage() {
         title="Booking not found"
         message="This booking doesn't exist or isn't on your account."
       >
-        <Link to="/dashboard" className="btn btn-primary">
-          Go to my bookings
+        <Link to={homePath} className="btn btn-primary">
+          {tutor ? 'Go to my schedule' : 'Go to my dashboard'}
         </Link>
       </EmptyState>
     );
@@ -82,7 +96,9 @@ function BookingDetailsPage() {
   }
 
   const { serviceSnapshot } = booking;
-  const canChange = isChangeable(booking);
+  // Only the parent who booked can reschedule or cancel.
+  const canChange = !tutor && isChangeable(booking);
+  const showPrepTips = getDisplayStatus(booking) === 'upcoming';
 
   return (
     <div className="row justify-content-center">
@@ -122,7 +138,10 @@ function BookingDetailsPage() {
                 {booking.studentFirstName} (grade {booking.studentGrade})
               </dd>
               <dt className="col-sm-4 text-secondary fw-normal">Tutor</dt>
-              <dd className="col-sm-8 fw-semibold">{serviceSnapshot.tutorName}</dd>
+              <dd className="col-sm-8 fw-semibold d-flex align-items-center gap-2">
+                <Avatar name={serviceSnapshot.tutorName} size="sm" />
+                {serviceSnapshot.tutorName}
+              </dd>
               <dt className="col-sm-4 text-secondary fw-normal">Length</dt>
               <dd className="col-sm-8 fw-semibold">{serviceSnapshot.durationMinutes} minutes</dd>
               <dt className="col-sm-4 text-secondary fw-normal">Price</dt>
@@ -130,7 +149,9 @@ function BookingDetailsPage() {
                 {formatPrice(serviceSnapshot.priceCents)}{' '}
                 <span className="fw-normal small text-secondary">(paid to the tutor)</span>
               </dd>
-              <dt className="col-sm-4 text-secondary fw-normal">Notes</dt>
+              <dt className="col-sm-4 text-secondary fw-normal">
+                {tutor ? "Parent's notes" : 'Notes'}
+              </dt>
               <dd className="col-sm-8 notes-text">
                 {booking.notes || <span className="text-secondary">None</span>}
               </dd>
@@ -138,6 +159,18 @@ function BookingDetailsPage() {
                 <>
                   <dt className="col-sm-4 text-secondary fw-normal">Originally booked for</dt>
                   <dd className="col-sm-8">{formatDateTime(booking.originalStartTime)}</dd>
+                </>
+              )}
+              {booking.completedAt && (
+                <>
+                  <dt className="col-sm-4 text-secondary fw-normal">Marked completed</dt>
+                  <dd className="col-sm-8">{formatDateTime(booking.completedAt)}</dd>
+                </>
+              )}
+              {booking.tutorSummary && (
+                <>
+                  <dt className="col-sm-4 text-secondary fw-normal">Tutor&apos;s summary</dt>
+                  <dd className="col-sm-8 notes-text">{booking.tutorSummary}</dd>
                 </>
               )}
               {booking.cancelledAt && (
@@ -199,13 +232,27 @@ function BookingDetailsPage() {
               </div>
             )}
 
-            {!canChange && booking.status === 'confirmed' && (
+            {tutor && needsCompleting(booking) && (
+              <div className="mt-4">
+                <CompleteSessionForm
+                  booking={booking}
+                  onCompleted={(completed) => {
+                    setUpdated(completed);
+                    setMessage('Session marked completed. The parent can now see your summary.');
+                  }}
+                />
+              </div>
+            )}
+
+            {!tutor && !canChange && getDisplayStatus(booking) === 'upcoming' && (
               <p className="small text-secondary mt-4 mb-0">
                 Sessions can be changed or cancelled until 2 hours before they start.
               </p>
             )}
           </div>
         </div>
+
+        {showPrepTips && <PrepTipsPanel bookingId={booking.id} />}
       </div>
     </div>
   );

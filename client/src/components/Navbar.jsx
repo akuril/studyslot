@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
+import Avatar from './Avatar';
 import { useAuth } from '../context/AuthContext';
+import { isTutor } from '../utils/roles';
+import { firstNameOf } from '../utils/avatar';
 
 const navItems = [
   { to: '/', label: 'Home', icon: '🏠', end: true },
@@ -11,6 +14,7 @@ const navItems = [
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, status, logout } = useAuth();
+  const tutor = isTutor(user);
 
   function toggleMenu() {
     setIsMenuOpen(!isMenuOpen);
@@ -29,7 +33,7 @@ function Navbar() {
 
   const { pathname } = useLocation();
   const linkClass = ({ isActive }) => `nav-link px-3 ${isActive ? 'active' : ''}`;
-  // "My bookings" also stays highlighted while viewing or changing one booking.
+  // The dashboard link also stays highlighted while viewing or changing one booking.
   const bookingsLinkClass = ({ isActive }) =>
     linkClass({ isActive: isActive || pathname.startsWith('/bookings/') });
 
@@ -61,19 +65,40 @@ function Navbar() {
                 </NavLink>
               </li>
             ))}
-            {user && (
+            {user && !tutor && (
+              <li className="nav-item">
+                <NavLink to="/find-help" className={linkClass} onClick={closeMenu}>
+                  <span aria-hidden="true">✨</span>
+                  Find help
+                </NavLink>
+              </li>
+            )}
+            {user && !tutor && (
               <li className="nav-item">
                 <NavLink to="/dashboard" className={bookingsLinkClass} onClick={closeMenu}>
                   <span aria-hidden="true">🗓️</span>
-                  My bookings
+                  My dashboard
+                </NavLink>
+              </li>
+            )}
+            {tutor && (
+              <li className="nav-item">
+                <NavLink to="/tutor" className={bookingsLinkClass} onClick={closeMenu}>
+                  <span aria-hidden="true">🧑‍🏫</span>
+                  My schedule
                 </NavLink>
               </li>
             )}
             {user && (
               <li className="nav-item">
-                <NavLink to="/account" className={linkClass} onClick={closeMenu}>
-                  <span aria-hidden="true">👤</span>
-                  {user.name.split(' ')[0]}
+                <NavLink
+                  to="/account"
+                  className={linkClass}
+                  onClick={closeMenu}
+                  aria-label={`My account (${user.name})`}
+                >
+                  <Avatar name={user.name} size="sm" />
+                  {firstNameOf(user.name)}
                 </NavLink>
               </li>
             )}
