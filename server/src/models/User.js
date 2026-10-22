@@ -4,6 +4,12 @@ import mongoose from 'mongoose';
 // The API layer (Step 17) validates first; this is the safety net.
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Two kinds of accounts:
+//  - parent: books sessions for their students (everyone who registers)
+//  - tutor:  sees and completes the sessions for services they teach.
+//            Tutor accounts are only created by `npm run seed:tutors`, never by sign-up.
+export const USER_ROLES = ['parent', 'tutor'];
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -21,6 +27,12 @@ const userSchema = new mongoose.Schema(
       maxlength: [254, 'Email must be at most 254 characters'],
       match: [EMAIL_PATTERN, 'Email must be a valid email address'],
       unique: true, // creates a unique INDEX (enforced by MongoDB, not by validation)
+    },
+    role: {
+      type: String,
+      enum: { values: USER_ROLES, message: 'Role "{VALUE}" is not supported' },
+      default: 'parent',
+      immutable: true, // an account can never change its own role
     },
     passwordHash: {
       type: String,
@@ -41,7 +53,7 @@ const userSchema = new mongoose.Schema(
         return ret;
       },
     },
-  }
+  },
 );
 
 export const User = mongoose.model('User', userSchema);

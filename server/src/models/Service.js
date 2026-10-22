@@ -77,6 +77,14 @@ const serviceSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // The tutor's account (role "tutor"). Linked by `npm run seed:tutors`; empty until then.
+    // tutorName stays the name shown to parents.
+    tutor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+      index: true,
+    },
   },
   {
     timestamps: true,
@@ -86,6 +94,7 @@ const serviceSchema = new mongoose.Schema(
         delete ret._id;
         delete ret.__v;
         delete ret.isActive; // the API only ever returns active services
+        delete ret.tutor; // internal link; parents only need tutorName
         delete ret.createdAt;
         delete ret.updatedAt;
         return ret;

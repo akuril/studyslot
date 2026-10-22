@@ -570,7 +570,7 @@
       "name": "Services",
       "item": [
         {
-          "name": "14. List services \u2192 200 (13 active)",
+          "name": "14. List services \u2192 200 (39 active)",
           "request": {
             "method": "GET",
             "header": [],
@@ -593,7 +593,8 @@
                   "pm.test('status is 200', () => pm.response.to.have.status(200));",
                   "",
                   "const services = pm.response.json();",
-                  "pm.test('13 active services', () => pm.expect(services.length).to.eql(13));",
+                  "pm.test('39 active services', () => pm.expect(services.length).to.eql(39));",
+                  "pm.test('no internal tutor link', () => services.forEach(s => pm.expect(s).to.not.have.property('tutor')));",
                   "pm.test('inactive Summer Math Bridge is hidden', () => pm.expect(services.map(s => s.name)).to.not.include('Summer Math Bridge'));",
                   "pm.test('public shape only', () => services.forEach(s => { pm.expect(s).to.have.property('id'); pm.expect(s).to.not.have.property('_id'); pm.expect(s).to.not.have.property('isActive'); }));",
                   "pm.collectionVariables.set('mathServiceId', services.find(s => s.name === 'Middle School Math Boost').id);",
@@ -604,7 +605,7 @@
           ]
         },
         {
-          "name": "15. Filter by subject \u2192 2 social studies",
+          "name": "15. Filter by subject \u2192 4 social studies",
           "request": {
             "method": "GET",
             "header": [],
@@ -631,7 +632,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status is 200', () => pm.response.to.have.status(200));",
-                  "pm.test('2 services', () => pm.expect(pm.response.json().length).to.eql(2));"
+                  "pm.test('4 services', () => pm.expect(pm.response.json().length).to.eql(4));"
                 ]
               }
             }
@@ -1893,6 +1894,395 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Students & roles",
+      "item": [
+        {
+          "name": "46. Save a student \u2192 201",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Sam\",\n  \"grade\": 7\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.test('safe student shape', () => {",
+                  "  pm.expect(b.firstName).to.eql('Sam');",
+                  "  pm.expect(b.grade).to.eql(7);",
+                  "  pm.expect(b).to.not.have.property('parent');",
+                  "});",
+                  "pm.collectionVariables.set('studentA', b.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "47. Save the same name again \u2192 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"sam\",\n  \"grade\": 9\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "48. Save a student with a bad grade \u2192 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Maya\",\n  \"grade\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('grade error', () => pm.expect(pm.response.json().details[0].field).to.eql('grade'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "49. List my students \u2192 200",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('one student', () => pm.expect(pm.response.json()).to.have.length(1));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "50. Change a student's grade \u2192 200",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students/{{studentA}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "{{studentA}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"grade\": 8\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('grade updated', () => pm.expect(pm.response.json().grade).to.eql(8));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "51. Delete a student \u2192 204",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students/{{studentA}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "{{studentA}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "52. Parent calls a tutor route \u2192 403",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tutor/sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tutor",
+                "sessions"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 403', () => pm.response.to.have.status(403));",
+                  "pm.test('message', () => pm.expect(pm.response.json().error).to.eql('Only tutor accounts can do this'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "53. AI prep tips for my cancelled booking \u2192 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ai/session-prep",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ai",
+                "session-prep"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"{{bookingA}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 409', () => pm.response.to.have.status(409));",
+                  "pm.test('only confirmed sessions get tips', () =>",
+                  "  pm.expect(pm.response.json().error).to.eql('Prep tips are only available for confirmed sessions'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "54. AI session prep with a bad id \u2192 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ai/session-prep",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ai",
+                "session-prep"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"nope\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "variable": [
@@ -1946,6 +2336,10 @@
     },
     {
       "key": "sundaySlot",
+      "value": ""
+    },
+    {
+      "key": "studentA",
       "value": ""
     }
   ]

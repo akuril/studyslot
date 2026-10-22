@@ -2,12 +2,13 @@ import { Booking, FIRST_NAME_PATTERN, MIN_GRADE, MAX_GRADE } from '../models/Boo
 import { Service } from '../models/Service.js';
 import { ApiError } from '../utils/ApiError.js';
 import { FieldErrors, readString, readInteger, isValidObjectId } from '../utils/validation.js';
-import { findOwnedBooking } from '../services/bookingAccess.js';
+import { findOwnedBooking, findViewableBooking } from '../services/bookingAccess.js';
 import {
   parseStartTime,
   checkBookingTime,
   calculateEndTime,
   findOverlappingBooking,
+  findServiceIdsSharingTutor,
   MIN_LEAD_MINUTES,
 } from '../services/bookingRules.js';
 
@@ -66,9 +67,10 @@ export async function createBooking(req, res) {
     throw ApiError.badRequest('Validation failed', [{ field: 'startTime', message: timeProblem }]);
   }
 
-  // 4. No overlap with another confirmed booking for this service (one tutor per service).
+  // 4. No overlap with another confirmed session taught by the same tutor.
   const end = calculateEndTime(start, service.durationMinutes);
-  const clash = await findOverlappingBooking({ serviceId: service._id, start, end });
+  const serviceIds = await findServiceIdsSharingTutor(service);
+  const clash = await findOverlappingBooking({ serviceIds, start, end });
   if (clash) {
     throw ApiError.conflict(SLOT_TAKEN_MESSAGE);
   }
@@ -100,9 +102,9 @@ export async function listMyBookings(req, res) {
   res.status(200).json(bookings);
 }
 
-// GET /api/bookings/:id   (owner only)
+// GET /api/bookings/:id   (the parent who booked it, or the tutor who teaches it)
 export async function getBooking(req, res) {
-  const booking = await findOwnedBooking(req.params.id, req.user);
+  const booking = await findViewableBooking(req.params.id, req.user);
   res.status(200).json(booking);
 }
 
@@ -156,8 +158,12 @@ export async function updateBooking(req, res) {
     }
 
     const newEnd = calculateEndTime(newStart, duration);
+    const service = (await Service.findById(booking.service).select('tutor')) || {
+      _id: booking.service,
+      tutor: null,
+    };
     const clash = await findOverlappingBooking({
-      serviceId: booking.service,
+      serviceIds: await findServiceIdsSharingTutor(service),
       start: newStart,
       end: newEnd,
       excludeBookingId: booking._id, // its own current slot is not a conflict

@@ -2,6 +2,7 @@
 // Pure functions where possible, so they're easy to test with fixed dates.
 
 import { Booking } from '../models/Booking.js';
+import { Service } from '../models/Service.js';
 
 export const BUSINESS_TIME_ZONE = 'America/New_York';
 export const MIN_LEAD_MINUTES = 120; // book at least 2 hours ahead
@@ -114,14 +115,28 @@ export function calculateEndTime(start, durationMinutes) {
 }
 
 /**
- * Finds a CONFIRMED booking for the same service that overlaps [start, end).
- * Two sessions overlap when each one starts before the other ends.
+ * Which services share a tutor with this one. A tutor can only be in one place at a
+ * time, so a new session must not overlap ANY of that tutor's sessions, even for a
+ * different service. Services without a linked tutor account only check themselves.
+ * `service` is a Service document (at least _id and tutor).
+ */
+export async function findServiceIdsSharingTutor(service) {
+  if (!service.tutor) {
+    return [service._id];
+  }
+  const services = await Service.find({ tutor: service.tutor }).select('_id');
+  return services.map((item) => item._id);
+}
+
+/**
+ * Finds a CONFIRMED booking for any of `serviceIds` (the same tutor) that overlaps
+ * [start, end). Two sessions overlap when each one starts before the other ends.
  * `excludeBookingId` lets a reschedule ignore the booking's own current slot (Step 20).
  * Uses the { service, status, startTime } index from Step 12.
  */
-export function findOverlappingBooking({ serviceId, start, end, excludeBookingId }) {
+export function findOverlappingBooking({ serviceIds, start, end, excludeBookingId }) {
   const query = {
-    service: serviceId,
+    service: { $in: serviceIds },
     status: 'confirmed',
     startTime: { $lt: end },
     endTime: { $gt: start },

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { recommendService } from '../controllers/aiController.js';
+import { recommendService, sessionPrepTips } from '../controllers/aiController.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { aiMinuteLimiter, aiDayLimiter } from '../middleware/rateLimits.js';
 import { allowFields } from '../utils/validation.js';
@@ -18,6 +18,16 @@ router.post(
   aiDayLimiter,
   allowFields(['need', 'grade']),
   recommendService,
+);
+
+// Same login and the SAME per-user limits (one shared AI allowance per account).
+router.post(
+  '/session-prep',
+  authenticate,
+  aiMinuteLimiter,
+  aiDayLimiter,
+  allowFields(['bookingId']),
+  sessionPrepTips,
 );
 
 export default router;

@@ -12,6 +12,7 @@ process.env.JWT_SECRET = 'test-secret-that-is-at-least-32-characters-long';
 const { default: app } = await import('../src/app.js');
 const { User } = await import('../src/models/User.js');
 const { Booking } = await import('../src/models/Booking.js');
+const { Service } = await import('../src/models/Service.js');
 const { signToken } = await import('../src/services/authService.js');
 const { nextEasternSlot } = await import('./helpers/slots.js');
 
@@ -74,6 +75,8 @@ beforeEach(async () => {
     overlapQuery = query;
     return clash;
   });
+  // The booked service has no linked tutor account, so only its own slots are checked.
+  mock.method(Service, 'findById', () => ({ select: async () => null }));
   // Like the real save(): run schema validation, then "store" it.
   mock.method(Booking.prototype, 'save', async function save() {
     await this.validate();

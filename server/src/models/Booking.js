@@ -94,6 +94,18 @@ const bookingSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    // Set by the TUTOR after the session starts ("mark completed"), with an optional
+    // short summary for the parent. Both stay empty until then.
+    completedAt: {
+      type: Date,
+      default: null,
+    },
+    tutorSummary: {
+      type: String,
+      trim: true,
+      maxlength: [500, 'Summary must be at most 500 characters'],
+      default: '',
+    },
   },
   {
     timestamps: true,
@@ -127,6 +139,10 @@ bookingSchema.path('endTime').validate(function endsAfterStart(endTime) {
 bookingSchema.path('cancelledAt').validate(function cancelledAtMatchesStatus(cancelledAt) {
   return this.status === 'cancelled' ? cancelledAt instanceof Date : cancelledAt === null;
 }, 'Cancelled time must be set only on cancelled bookings');
+
+bookingSchema.path('completedAt').validate(function completedOnlyIfConfirmed(completedAt) {
+  return completedAt === null || this.status === 'confirmed';
+}, 'Only confirmed sessions can be completed');
 
 // Dashboard:      find({ user }).sort({ startTime: 1 })
 bookingSchema.index({ user: 1, startTime: 1 });

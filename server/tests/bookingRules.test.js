@@ -135,7 +135,7 @@ test('calculateEndTime adds the duration', () => {
 
 // ===== Overlap query =====
 
-test('overlap query: same service, confirmed only, start < newEnd and end > newStart', async () => {
+test("overlap query: same tutor's services, confirmed only, start < newEnd and end > newStart", async () => {
   let query;
   mock.method(Booking, 'findOne', async (q) => {
     query = q;
@@ -143,16 +143,16 @@ test('overlap query: same service, confirmed only, start < newEnd and end > newS
   });
   const start = at('2026-10-27T20:00:00.000Z');
   const end = at('2026-10-27T21:00:00.000Z');
-  await findOverlappingBooking({ serviceId: 'service-1', start, end });
+  await findOverlappingBooking({ serviceIds: ['service-1', 'service-2'], start, end });
   assert.deepEqual(query, {
-    service: 'service-1',
+    service: { $in: ['service-1', 'service-2'] },
     status: 'confirmed',
     startTime: { $lt: end },
     endTime: { $gt: start },
   });
 
   await findOverlappingBooking({
-    serviceId: 'service-1',
+    serviceIds: ['service-1'],
     start,
     end,
     excludeBookingId: 'booking-9',

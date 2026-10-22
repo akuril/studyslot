@@ -46,7 +46,7 @@ test('preflight allows JSON + Authorization for the approved methods', async () 
     },
   });
   assert.equal(response.status, 204);
-  assert.equal(response.headers.get('access-control-allow-methods'), 'GET,POST,PATCH');
+  assert.equal(response.headers.get('access-control-allow-methods'), 'GET,POST,PATCH,DELETE');
   assert.equal(response.headers.get('access-control-allow-headers'), 'Content-Type,Authorization');
   assert.equal(response.headers.get('access-control-allow-credentials'), null);
 });

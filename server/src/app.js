@@ -8,6 +8,8 @@ import serviceRoutes from './routes/serviceRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
+import tutorRoutes from './routes/tutorRoutes.js';
+import studentRoutes from './routes/studentRoutes.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { notFound } from './middleware/notFound.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -32,7 +34,7 @@ app.use(helmet());
 app.use(
   cors({
     origin: config.clientOrigin,
-    methods: ['GET', 'POST', 'PATCH'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     maxAge: 600, // browsers may cache the preflight answer for 10 minutes
   }),
@@ -52,6 +54,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/tutor', tutorRoutes);
+app.use('/api/students', studentRoutes);
 
 // ===== Must come LAST =====
 // 1. Any request that didn't match a route above gets a 404.
