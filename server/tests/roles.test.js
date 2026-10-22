@@ -169,6 +169,25 @@ test('users default to the parent role, and the role is included in the user JSO
   assert.equal(tutorLane.toJSON().role, 'tutor');
 });
 
+test('accounts saved before roles existed (no role field) count as parents', async () => {
+  const oldAccount = User.hydrate({
+    _id: '6ad9684884fb0f93e6f31d03',
+    name: 'Pat Smith',
+    email: 'pat@example.com',
+  });
+  assert.equal(oldAccount.role, 'parent');
+  assert.equal(oldAccount.toJSON().role, 'parent');
+
+  // ...and can use parent routes.
+  users.push(oldAccount);
+  try {
+    const { status } = await send('GET', '/api/students', { user: oldAccount });
+    assert.equal(status, 200);
+  } finally {
+    users.pop();
+  }
+});
+
 test('sign-up cannot create a tutor: "role" is not an allowed field', async () => {
   const { status, body } = await send('POST', '/api/auth/register', {
     body: { name: 'Sneaky', email: 'sneaky@example.com', password: 'Passw0rd123', role: 'tutor' },

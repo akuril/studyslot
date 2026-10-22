@@ -33,6 +33,8 @@ const userSchema = new mongoose.Schema(
       enum: { values: USER_ROLES, message: 'Role "{VALUE}" is not supported' },
       default: 'parent',
       immutable: true, // an account can never change its own role
+      // Accounts created before roles existed have no role saved: they are parents.
+      get: (value) => value || 'parent',
     },
     passwordHash: {
       type: String,
@@ -48,6 +50,7 @@ const userSchema = new mongoose.Schema(
         ret.id = ret._id.toString();
         delete ret._id;
         delete ret.__v;
+        ret.role = doc.role; // through the getter, so older accounts show "parent"
         delete ret.passwordHash; // extra protection if it was ever selected
         delete ret.updatedAt;
         return ret;

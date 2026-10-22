@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { homePathFor } from '../utils/roles';
+import { homePathFor, roleOf } from '../utils/roles';
 
 /**
  * Inside <ProtectedRoute>: pages for ONE kind of account. Anyone else is sent to
@@ -9,7 +9,9 @@ import { homePathFor } from '../utils/roles';
  */
 function RoleRoute({ role }) {
   const { user } = useAuth();
-  if (user.role !== role) {
+  // roleOf() treats a missing role as "parent", so the redirect can never point back
+  // at the page we're already on (which would leave a blank page).
+  if (roleOf(user) !== role) {
     return <Navigate to={homePathFor(user)} replace />;
   }
   return <Outlet />;
