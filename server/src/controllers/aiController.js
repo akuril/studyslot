@@ -1,0 +1,34 @@
+import { recommendServices } from '../services/aiService.js';
+import { FieldErrors, readString, readInteger } from '../utils/validation.js';
+
+export const MAX_NEED_LENGTH = 500;
+
+// Line breaks, tabs, and other invisible control characters become single spaces,
+// and runs of spaces collapse, so "  fractions\n\n test " becomes "fractions test".
+function normalizeNeed(value) {
+  if (typeof value !== 'string') return value; // readString reports the wrong type
+  // eslint-disable-next-line no-control-regex
+  return value.replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+// POST /api/ai/recommend-service   body: { need, grade? }
+// Login, per-user limits, and the allowed fields are checked by the route first.
+export async function recommendService(req, res) {
+  const errors = new FieldErrors();
+  const need = readString({ need: normalizeNeed(req.body.need) }, 'need', errors, {
+    label: 'Description',
+    min: 1,
+    max: MAX_NEED_LENGTH,
+  });
+  const grade = readInteger(req.body, 'grade', errors, {
+    label: 'Grade',
+    required: false,
+    min: 6,
+    max: 12,
+  });
+  errors.throwIfAny();
+
+  // Only the description and grade go to the AI. Never req.user (name, email, id).
+  const result = await recommendServices({ need, grade });
+  res.status(200).json(result);
+}

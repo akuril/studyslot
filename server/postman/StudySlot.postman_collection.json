@@ -1684,6 +1684,215 @@
           ]
         }
       ]
+    },
+    {
+      "name": "AI",
+      "item": [
+        {
+          "name": "42. AI suggestion without login \u2192 401",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ai/recommend-service",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ai",
+                "recommend-service"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"need\": \"Help with fractions\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 401', () => pm.response.to.have.status(401));",
+                  "pm.test('error message', () => pm.expect(pm.response.json().error).to.eql('Authentication required'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "43. AI suggestion with empty description \u2192 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ai/recommend-service",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ai",
+                "recommend-service"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"need\": \"   \"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 400', () => pm.response.to.have.status(400));",
+                  "const b = pm.response.json();",
+                  "pm.test('field error for need', () => {",
+                  "  pm.expect(b.error).to.eql('Validation failed');",
+                  "  pm.expect(b.details[0]).to.eql({ field: 'need', message: 'Description is required' });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "44. AI suggestion with unknown field \u2192 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ai/recommend-service",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ai",
+                "recommend-service"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"need\": \"Help with fractions\",\n  \"userId\": \"someone-else\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('unknown field rejected', () => pm.expect(pm.response.json().details[0].field).to.eql('userId'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "45. AI suggestion for a 7th grader \u2192 200",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ai/recommend-service",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ai",
+                "recommend-service"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"need\": \"My 7th grader is struggling with fractions and has a test Friday\",\n  \"grade\": 7\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('response shape', () => {",
+                  "  pm.expect(b).to.have.all.keys('summary', 'recommendations', 'disclaimer', 'source');",
+                  "  pm.expect(['ai', 'fallback']).to.include(b.source);",
+                  "  pm.expect(b.summary).to.be.a('string').and.not.empty;",
+                  "  pm.expect(b.recommendations).to.be.an('array').with.length.at.most(3);",
+                  "});",
+                  "pm.test('every suggestion is a real service that fits grade 7', () => {",
+                  "  b.recommendations.forEach((r) => {",
+                  "    pm.expect(r).to.have.all.keys('serviceId', 'name', 'subject', 'gradeBand', 'reason');",
+                  "    pm.expect(r.serviceId).to.match(/^[a-f0-9]{24}$/);",
+                  "    pm.expect(['6-8', '6-12']).to.include(r.gradeBand);",
+                  "  });",
+                  "});",
+                  "pm.test('a math service is suggested', () => {",
+                  "  pm.expect(b.recommendations.map((r) => r.subject)).to.include('math');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "variable": [
