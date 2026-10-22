@@ -137,7 +137,7 @@ The schema is requested with OpenRouter's structured-output option when the chos
 | Situation | Behavior |
 |---|---|
 | No `AI_API_KEY` / `AI_MODEL` configured | Always use the fallback (the app still works) |
-| Provider takes longer than **15 s** | Abort the request and use the fallback |
+| Provider takes longer than **25 s** (raised from 15 s after testing: free models took 9.5–13 s) | Abort the request and use the fallback |
 | Provider 429 (free-tier limit), 5xx, network error | Fallback |
 | Provider 401/403 (bad key) | Fallback, plus a server log line *"AI provider rejected the API key"* |
 | Invalid or unparseable output | Fallback |
@@ -171,8 +171,11 @@ Grade narrows the candidates as above. It returns the top 3 with score > 0 and r
   - **Zero Data Retention → "All other models": off.** When it's on, every free endpoint is excluded and requests fail with 404 `zdr-violation-by-account`.
   - **Data Training → "Allow free endpoints that train on request data": on.** Paid endpoints that train stay **off**.
   - Trade-off: a $0 AI feature, but the free provider may keep and train on the description. Acceptable for a capstone demo **because** of the mitigations above. A production app would use a paid, non-training (ZDR) endpoint.
-- **Model:** `AI_MODEL=nvidia/nemotron-3.5-super-vl:free` (it supports `structured_outputs`). `minimax/minimax-m3.1-flash:free` was rejected: it offers JSON mode only, with no guaranteed schema.
-- **Implementation (Step 30):** `services/openRouterClient.js` (the provider call, 15 s timeout, errors mapped to a short `kind`), `services/aiService.js` (catalog, prompt, output validation, fallback switch), `services/recommendationFallback.js` (keyword matcher). The client asks reasoning models for low effort, and never asks for their reasoning text.
+- **Provider switch (Step 30):** `AI_PROVIDER=groq` is supported alongside `openrouter`. Both use the same OpenAI-style API, so only the address and a few request settings differ (`PROVIDERS` in `aiClient.js`).
+  - Why Groq: a fast free tier (30 requests/min, 1,000/day per model), strict structured outputs on `openai/gpt-oss-20b` and `gpt-oss-120b`, no retention of inference data by default, and an optional **Zero Data Retention** switch (Data Controls).
+  - With Groq, OpenRouter's free-endpoint training setting is no longer needed.
+- **Model on OpenRouter:** `AI_MODEL=nvidia/nemotron-3.5-super-vl:free` (it supports `structured_outputs`; about 10 s per answer). `minimax/minimax-m3.1-flash:free` was rejected: it offers JSON mode only, with no guaranteed schema.
+- **Implementation (Step 30):** `services/aiClient.js` (the provider call for OpenRouter or Groq, 25 s timeout, errors mapped to a short `kind`), `services/aiService.js` (catalog, prompt, output validation, fallback switch), `services/recommendationFallback.js` (keyword matcher). The client asks reasoning models for low effort, and never asks for their reasoning text.
 
 ## 10. Errors from the endpoint
 

@@ -23,8 +23,8 @@ const {
 const { recommendByKeywords, FALLBACK_SUMMARY, FALLBACK_NO_MATCH_SUMMARY } = await import(
   '../src/services/recommendationFallback.js'
 );
-const { requestChatCompletion, AiProviderError } = await import(
-  '../src/services/openRouterClient.js'
+const { requestChatCompletion, buildChatRequest, AiProviderError, PROVIDERS } = await import(
+  '../src/services/aiClient.js'
 );
 
 const MATH_ID = 'aaaaaaaaaaaaaaaaaaaaaaa1';
@@ -55,7 +55,12 @@ const catalog = [
   },
 ];
 
-const configured = { isConfigured: true, apiKey: 'test-key', model: 'test/model:free' };
+const configured = {
+  isConfigured: true,
+  provider: 'openrouter',
+  apiKey: 'test-key',
+  model: 'test/model:free',
+};
 
 // Builds the fake parts for recommendServices. `reply` is what the fake model returns,
 // or an Error to throw.
@@ -103,6 +108,7 @@ test('AI success: keeps valid picks and adds name/subject/grades from OUR catalo
   ]);
   assert.equal(calls.length, 1);
   assert.equal(calls[0].model, 'test/model:free');
+  assert.equal(calls[0].provider, 'openrouter');
   assert.deepEqual(calls[0].schema, RECOMMENDATION_SCHEMA);
   assert.match(logs[0], /source=ai .*kept=1 dropped=0/);
 });
@@ -303,7 +309,7 @@ test('fallback ranks by number of matches and returns at most 3', () => {
   );
 });
 
-// ---------- OpenRouter client (fake fetch, no internet) ----------
+// ---------- AI provider client (fake fetch, no internet) ----------
 
 function fakeFetch(status, body) {
   const requests = [];
@@ -315,6 +321,7 @@ function fakeFetch(status, body) {
 }
 
 const baseRequest = {
+  provider: 'openrouter',
   apiKey: 'test-key',
   model: 'test/model:free',
   messages: [{ role: 'user', content: 'hi' }],
@@ -334,6 +341,28 @@ test('client sends the key in a header, the model, and the strict JSON schema', 
   assert.equal(sent.response_format.type, 'json_schema');
   assert.equal(sent.response_format.json_schema.strict, true);
   assert.ok(!requests[0].options.body.includes('test-key'), 'key is never in the body');
+  assert.equal(sent.max_tokens, 4000);
+  assert.deepEqual(sent.reasoning, { effort: 'low' });
+  assert.ok(requests[0].options.signal, 'every request has a timeout signal');
+});
+
+test('Groq requests use Groq\'s address and settings, with the same strict schema', () => {
+  const { url, init } = buildChatRequest({ ...baseRequest, provider: 'groq' });
+  const sent = JSON.parse(init.body);
+
+  assert.equal(url, 'https://api.groq.com/openai/v1/chat/completions');
+  assert.equal(init.headers.Authorization, 'Bearer test-key');
+  assert.equal(init.headers['X-Title'], undefined);
+  assert.equal(sent.max_completion_tokens, 2000);
+  assert.equal(sent.max_tokens, undefined);
+  assert.equal(sent.reasoning_effort, 'low');
+  assert.equal(sent.reasoning, undefined);
+  assert.equal(sent.response_format.json_schema.strict, true);
+});
+
+test('an unknown provider is a programming error, not a silent fallback', () => {
+  assert.throws(() => buildChatRequest({ ...baseRequest, provider: 'nope' }), /Unsupported/);
+  assert.deepEqual(Object.keys(PROVIDERS).sort(), ['groq', 'openrouter']);
 });
 
 const statusCases = [

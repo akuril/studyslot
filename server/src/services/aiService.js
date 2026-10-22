@@ -12,7 +12,7 @@
 
 import { config } from '../config/env.js';
 import { Service, gradeBandsForGrade } from '../models/Service.js';
-import { requestChatCompletion, AiProviderError } from './openRouterClient.js';
+import { requestChatCompletion, AiProviderError } from './aiClient.js';
 import { recommendByKeywords } from './recommendationFallback.js';
 
 export const MAX_RECOMMENDATIONS = 3;
@@ -237,6 +237,7 @@ export async function recommendServices({ need, grade }, deps = {}) {
   let text;
   try {
     text = await callModel({
+      provider: aiConfig.provider,
       apiKey: aiConfig.apiKey,
       model: aiConfig.model,
       schema: RECOMMENDATION_SCHEMA,

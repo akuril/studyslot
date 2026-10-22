@@ -6,6 +6,8 @@
 // before any code runs) and from the host's dashboard in production.
 // NEVER log these values.
 
+import { SUPPORTED_AI_PROVIDERS } from '../services/aiClient.js';
+
 const NODE_ENVS = ['development', 'production', 'test'];
 const MIN_JWT_SECRET_LENGTH = 32;
 const DEFAULT_CLIENT_ORIGIN = 'http://localhost:5173';
@@ -48,6 +50,10 @@ if (read('JWT_SECRET').length < MIN_JWT_SECRET_LENGTH) {
 
 const aiApiKey = read('AI_API_KEY');
 const aiModel = read('AI_MODEL');
+const aiProvider = (read('AI_PROVIDER') || 'openrouter').toLowerCase();
+if (!SUPPORTED_AI_PROVIDERS.includes(aiProvider)) {
+  fail(`AI_PROVIDER must be one of: ${SUPPORTED_AI_PROVIDERS.join(', ')}.`);
+}
 
 export const config = Object.freeze({
   nodeEnv,
@@ -58,7 +64,7 @@ export const config = Object.freeze({
   jwtExpiresIn: read('JWT_EXPIRES_IN') || '1d',
   clientOrigin: read('CLIENT_ORIGIN') || DEFAULT_CLIENT_ORIGIN,
   ai: Object.freeze({
-    provider: read('AI_PROVIDER') || 'openrouter',
+    provider: aiProvider,
     model: aiModel,
     apiKey: aiApiKey,
     // The AI feature is optional at startup: without a key and model,
