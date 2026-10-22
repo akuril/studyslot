@@ -11,6 +11,7 @@ import aiRoutes from './routes/aiRoutes.js';
 import tutorRoutes from './routes/tutorRoutes.js';
 import studentRoutes from './routes/studentRoutes.js';
 import { requestLogger } from './middleware/requestLogger.js';
+import { apiLimiter } from './middleware/rateLimits.js';
 import { notFound } from './middleware/notFound.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
@@ -49,7 +50,8 @@ if (config.nodeEnv !== 'test') {
 app.use(express.json({ limit: '10kb' }));
 
 // ===== Routes =====
-app.use('/api/health', healthRoutes);
+app.use('/api/health', healthRoutes); // before the limiter: health checks are never limited
+app.use('/api', apiLimiter); // per-IP ceiling for every other API route
 app.use('/api/auth', authRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/bookings', bookingRoutes);

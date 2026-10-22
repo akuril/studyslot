@@ -57,3 +57,17 @@ function aiLimiter(windowMs, limit) {
 
 export const aiMinuteLimiter = aiLimiter(ONE_MINUTE, AI_LIMITS.perMinute);
 export const aiDayLimiter = aiLimiter(ONE_DAY, AI_LIMITS.perDay);
+
+// Everything else under /api: a generous per-IP ceiling that normal use never reaches
+// (about 33 requests a minute, sustained for 15 minutes), but that stops a script from
+// hammering bookings, students, or tutor routes. /api/health is mounted before this,
+// so the hosting platform's health checks are never limited.
+export const GENERAL_API_LIMIT = config.nodeEnv === 'development' ? 5000 : 500;
+
+export const apiLimiter = rateLimit({
+  windowMs: FIFTEEN_MINUTES,
+  limit: GENERAL_API_LIMIT,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  handler: tooManyRequests('Too many requests. Please slow down and try again in a few minutes.'),
+});

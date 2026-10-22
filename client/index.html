@@ -14,19 +14,8 @@
     />
     <title>StudySlot</title>
 
-    <!-- Set the light/dark theme BEFORE the page draws, so it never flashes the wrong one. -->
-    <script>
-      (function () {
-        try {
-          var saved = JSON.parse(localStorage.getItem('studyslot-theme') || '"auto"');
-          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          var isDark = saved === 'dark' || (saved !== 'light' && prefersDark);
-          document.documentElement.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
-        } catch (error) {
-          // If anything goes wrong, Bootstrap's default (light) is used.
-        }
-      })();
-    </script>
+    <!-- Sets the light/dark theme before the page draws (no flash). See public/theme-init.js. -->
+    <script src="/theme-init.js"></script>
   </head>
   <body>
     <div id="root"></div>

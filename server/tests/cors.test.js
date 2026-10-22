@@ -50,3 +50,10 @@ test('preflight allows JSON + Authorization for the approved methods', async () 
   assert.equal(response.headers.get('access-control-allow-headers'), 'Content-Type,Authorization');
   assert.equal(response.headers.get('access-control-allow-credentials'), null);
 });
+
+test('general API rate limit applies to API routes but never to /api/health', async () => {
+  const services = await fetch(`${baseUrl}/api/services/not-a-valid-id`);
+  assert.match(services.headers.get('ratelimit-policy') || '', /^"?500-in-15min/);
+  const health = await fetch(`${baseUrl}/api/health`);
+  assert.equal(health.headers.get('ratelimit-policy'), null);
+});
