@@ -15,3 +15,21 @@ export function login({ email, password }) {
 export function getCurrentUser(options = {}) {
   return apiRequest('/auth/me', { signal: options.signal });
 }
+
+/** PATCH /api/auth/me with { name?, bio? } -> { user }  (bio is for tutors only) */
+export function updateProfile(changes) {
+  return apiRequest('/auth/me', { method: 'PATCH', body: changes });
+}
+
+/** POST /api/auth/change-password -> { message } */
+export function changePassword({ currentPassword, newPassword }) {
+  return apiRequest('/auth/change-password', {
+    method: 'POST',
+    body: { currentPassword, newPassword },
+  });
+}
+
+/** GET /api/auth/me/summary -> counts for the account page (shape depends on the role) */
+export function getAccountSummary(options = {}) {
+  return apiRequest('/auth/me/summary', { signal: options.signal });
+}

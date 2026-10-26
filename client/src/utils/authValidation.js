@@ -4,6 +4,23 @@
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** The message for a password that breaks the rules, or '' when it is acceptable. */
+export function passwordProblem(password) {
+  if (!password) {
+    return 'Password is required';
+  }
+  if (password.length < 8) {
+    return 'Password must be at least 8 characters';
+  }
+  if (new TextEncoder().encode(password).length > 72) {
+    return 'Password is too long (maximum 72 characters)';
+  }
+  if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
+    return 'Password must include at least one letter and one number';
+  }
+  return '';
+}
+
 export function validateLogin({ email, password }) {
   const errors = {};
   if (!email.trim()) {
@@ -28,14 +45,9 @@ export function validateRegistration({ name, email, password, confirmPassword })
 
   Object.assign(errors, validateLogin({ email, password: 'x' }));
 
-  if (!password) {
-    errors.password = 'Password is required';
-  } else if (password.length < 8) {
-    errors.password = 'Password must be at least 8 characters';
-  } else if (new TextEncoder().encode(password).length > 72) {
-    errors.password = 'Password is too long (maximum 72 characters)';
-  } else if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
-    errors.password = 'Password must include at least one letter and one number';
+  const problem = passwordProblem(password);
+  if (problem) {
+    errors.password = problem;
   }
 
   if (confirmPassword !== password) {

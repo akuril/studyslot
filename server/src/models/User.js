@@ -41,6 +41,13 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Password hash is required'],
       select: false, // never loaded unless a query explicitly asks for it
     },
+    // A short introduction a tutor writes on their account page. Parents never have one.
+    bio: {
+      type: String,
+      trim: true,
+      maxlength: [300, 'Bio must be at most 300 characters'],
+      default: '',
+    },
   },
   {
     timestamps: true, // adds createdAt and updatedAt automatically
@@ -52,6 +59,9 @@ const userSchema = new mongoose.Schema(
         delete ret.__v;
         ret.role = doc.role; // through the getter, so older accounts show "parent"
         delete ret.passwordHash; // extra protection if it was ever selected
+        if (doc.role !== 'tutor') {
+          delete ret.bio; // only tutors have a bio
+        }
         delete ret.updatedAt;
         return ret;
       },

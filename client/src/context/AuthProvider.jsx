@@ -96,6 +96,11 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(() => clearSession('logout'), [clearSession]);
 
+  // After the account page saves a change, show the updated user everywhere (the navbar).
+  const updateUser = useCallback((user) => {
+    setState((current) => (current.user ? { ...current, user } : current));
+  }, []);
+
   const value = useMemo(
     () => ({
       user: state.user,
@@ -105,8 +110,9 @@ export function AuthProvider({ children }) {
       login,
       register,
       logout,
+      updateUser,
     }),
-    [state, login, register, logout],
+    [state, login, register, logout, updateUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

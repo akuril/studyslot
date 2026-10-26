@@ -34,6 +34,19 @@ export const registerLimiter = rateLimit({
   handler: tooManyRequests('Too many sign-up attempts. Please try again in 15 minutes.'),
 });
 
+// Change password: at most 10 FAILED attempts per logged-in user per 15 minutes, so a stolen
+// login token can't be used to guess the current password. Runs after `authenticate`.
+// Successful changes don't count.
+export const passwordChangeLimiter = rateLimit({
+  windowMs: FIFTEEN_MINUTES,
+  limit: AUTH_ATTEMPT_LIMIT,
+  skipSuccessfulRequests: true,
+  keyGenerator: (req) => String(req.user._id),
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  handler: tooManyRequests('Too many password attempts. Please try again in 15 minutes.'),
+});
+
 // AI suggestions: limited PER LOGGED-IN USER (not per IP), to protect the free AI
 // allowance and stop one account from using it all. These run after `authenticate`,
 // so req.user is always set. Requests rejected with 4xx (e.g. an empty description)

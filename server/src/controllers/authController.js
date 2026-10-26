@@ -8,27 +8,29 @@ const PASSWORD_MIN = 8;
 const PASSWORD_MAX_BYTES = 72; // bcrypt ignores anything after 72 bytes
 
 // Passwords are NOT trimmed: spaces are allowed and must match exactly.
-function readNewPassword(body, errors) {
-  const password = body.password;
+// `field` is the name of the body field (sign-up uses "password", the change-password
+// form uses "newPassword"), so error messages point at the right input.
+export function readNewPassword(body, errors, field = 'password') {
+  const password = body[field];
 
   if (password === undefined || password === null || password === '') {
-    errors.add('password', 'Password is required');
+    errors.add(field, 'Password is required');
     return undefined;
   }
   if (typeof password !== 'string') {
-    errors.add('password', 'Password must be text');
+    errors.add(field, 'Password must be text');
     return undefined;
   }
   if (password.length < PASSWORD_MIN) {
-    errors.add('password', `Password must be at least ${PASSWORD_MIN} characters`);
+    errors.add(field, `Password must be at least ${PASSWORD_MIN} characters`);
     return undefined;
   }
   if (Buffer.byteLength(password, 'utf8') > PASSWORD_MAX_BYTES) {
-    errors.add('password', 'Password is too long (maximum 72 characters)');
+    errors.add(field, 'Password is too long (maximum 72 characters)');
     return undefined;
   }
   if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
-    errors.add('password', 'Password must include at least one letter and one number');
+    errors.add(field, 'Password must include at least one letter and one number');
     return undefined;
   }
   return password;

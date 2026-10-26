@@ -6,7 +6,7 @@ export const AuthContext = createContext(null);
 
 /**
  * Lets any component read and change the login state:
- *   const { user, status, login, register, logout, sessionExpired, signedOutReason } = useAuth();
+ *   const { user, status, login, register, logout, updateUser, sessionExpired, signedOutReason } = useAuth();
  *   status: 'restoring' (checking a saved login) | 'ready'
  *   signedOutReason: 'logout' | 'expired' | null
  */
