@@ -56,15 +56,9 @@ export async function sessionPrepTips(req, res) {
   }
 
   // The subject comes from the service (the booking only keeps a snapshot of its name).
-  const service = await Service.findById(booking.service).select('subject gradeBand');
+  const service = await Service.findById(booking.service).select('subject');
 
-  const result = await getSessionPrepTips({
-    serviceName: booking.serviceSnapshot.name,
-    subject: service ? service.subject : 'homework-help',
-    gradeBand: service ? service.gradeBand : '6-12',
-    studentGrade: booking.studentGrade,
-    studentFirstName: booking.studentFirstName, // used only to REMOVE the name from the notes
-    notes: booking.notes,
-  });
+  // Built-in tips by subject: no AI call, so no tokens are used.
+  const result = getSessionPrepTips({ subject: service ? service.subject : 'homework-help' });
   res.status(200).json(result);
 }

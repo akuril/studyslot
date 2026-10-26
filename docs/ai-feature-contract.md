@@ -189,17 +189,18 @@ Grade narrows the candidates as above. It returns the top 3 with score > 0 and r
 The provider failing is **not** an error for the user: it returns 200 with `source: "fallback"`.
 
 
-## Second AI feature: session prep tips (Step 38)
+## Session prep tips (built-in, not AI)
 
-- **Where:** "✨ Get ready for this session" on an upcoming booking's page, for the booking's parent or tutor.
-- **Route:** `POST /api/ai/session-prep` `{ bookingId }`.
-  - Requires login.
-  - Shares the same 5/minute and 20/day per-user limits as recommendations.
-  - Only confirmed bookings get tips (409 otherwise).
-- **Sent to the model:** service name, subject, grade band, student grade, and the parent's notes.
-  - The student's first name is replaced with "the student".
-  - `<<<`/`>>>` markers are stripped.
-  - The notes are fenced as data.
-- **Output:** JSON schema `{ tips: string[3..5] }`. The server trims each tip, removes duplicates, caps each at 160 characters, and requires at least 3 tips.
-- **Fallback:** built-in tips per subject plus general tips (`source: "fallback"`) when the AI isn't configured, times out, is rate-limited, or answers badly.
-- **Privacy:** nothing is stored, and the notes are never logged. Log line: `AI prep tips: source=… latencyMs=… tips=…`.
+Step 38 first made these AI-generated. They were changed in Step 40 because the tips for a subject never change, so each request only spent tokens and the daily AI allowance.
+
+- **Where:** "Get ready for this session" on an upcoming booking's page, for the booking's parent or tutor. The tips load automatically; there is no button.
+- **Route:** `POST /api/ai/session-prep` `{ bookingId }`. Requires login and the booking access check. Only confirmed bookings get tips (409 otherwise). The AI rate limits do not apply.
+- **Tips:** two subject tips plus three general tips from `services/aiPrepService.js`. Nothing is sent to any outside service, and nothing is stored.
+
+## Recommendation quality rules (added in Step 40)
+
+Found by hand: for "My 7th grader needs help with honors science work", the model returned one science service and then padded the list with Mandarin and French.
+
+- **Prompt:** recommend only clear fits; return 1 or 2 if only that many fit; never add a service just to reach 3; rank the best fit first; stay in the subject the parent names; words like "honors" describe difficulty, not a different subject.
+- **Server guard** (`dropOffSubjectPicks` in `aiService.js`): if the description clearly names a subject by keyword, picks from other subjects are dropped. Study Skills and Homework Help are always allowed. If no pick would remain, the model's answer is kept as it was.
+- **Tests:** `aiService.test.js` ("guard:" tests).

@@ -410,14 +410,14 @@ test('403: tutors have no saved students', async () => {
   assert.equal((await send('GET', '/api/students', { user: tutorLane })).status, 403);
 });
 
-// ===== AI session prep (fallback path: no AI key in tests) =====
+// ===== Session prep tips (built-in, no AI call) =====
 
 test('session prep: the parent and the tutor get tips; others are refused', async () => {
   const bookingId = String(bookings[0]._id);
 
   const asParent = await send('POST', '/api/ai/session-prep', { user: alice, body: { bookingId } });
   assert.equal(asParent.status, 200);
-  assert.equal(asParent.body.source, 'fallback');
+  assert.equal(asParent.body.source, undefined); // built-in tips, no AI involved
   assert.ok(asParent.body.tips.length >= 3 && asParent.body.tips.length <= 5);
   assert.match(asParent.body.tips[0], /homework or practice problems/); // math tips
   assert.equal(typeof asParent.body.disclaimer, 'string');

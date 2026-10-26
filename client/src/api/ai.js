@@ -13,7 +13,7 @@ export function recommendService({ need, grade }) {
   return apiRequest('/ai/recommend-service', { method: 'POST', body });
 }
 
-/** POST /api/ai/session-prep with { bookingId } -> { tips: string[], disclaimer, source } */
+/** POST /api/ai/session-prep with { bookingId } -> { tips: string[], disclaimer } (built-in tips, no AI) */
 export function getSessionPrepTips(bookingId) {
   return apiRequest('/ai/session-prep', { method: 'POST', body: { bookingId } });
 }

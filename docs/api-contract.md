@@ -93,7 +93,7 @@ Base URL: `http://localhost:5000/api` (development) · `https://SERVICE-NAME.onr
 | PATCH | /bookings/:id | Reschedule and/or edit notes | Yes, owner | 200 `Booking` |
 | POST | /bookings/:id/cancel | Cancel (status → cancelled) | Yes, owner | 200 `Booking` |
 | POST | /ai/recommend-service | AI service recommendation | Yes (rate-limited) | 200 recommendation |
-| POST | /ai/session-prep | AI prep tips for one confirmed session | Yes, booking's parent or tutor (rate-limited) | 200 `{ tips, disclaimer, source }` |
+| POST | /ai/session-prep | Built-in prep tips for one confirmed session (no AI call) | Yes, booking's parent or tutor | 200 `{ tips, disclaimer }` |
 | GET | /students | My saved students (A–Z) | Yes, parent | 200 `Student[]` |
 | POST | /students | Save a student `{ firstName, grade }` | Yes, parent | 201 `Student` |
 | PATCH | /students/:id | Rename / change grade | Yes, parent, owner | 200 `Student` |
@@ -221,7 +221,7 @@ There are no service create/update/delete endpoints, because there is no admin r
 | Routes | Limit | Keyed by |
 |---|---|---|
 | /auth/register, /auth/login | 10 requests / 15 minutes (200 when `NODE_ENV=development`) | IP address |
-| /ai/recommend-service and /ai/session-prep (shared) | 5 / minute and 20 / day | User id |
+| /ai/recommend-service | 5 / minute and 20 / day | User id |
 
 Limits are kept in memory and reset when the server restarts. That's acceptable for a single-instance capstone deployment and is documented as a limitation.
 
@@ -262,6 +262,6 @@ A new or rescheduled booking must not overlap any **confirmed** booking for **an
 ### POST /ai/session-prep
 
 - Body `{ bookingId }` only.
-- **200** `{ tips: string[3..5], disclaimer, source: "ai" | "fallback" }`. The fallback gives built-in subject tips when the AI is unavailable.
+- **200** `{ tips: string[3..5], disclaimer }`. Built-in tips chosen by the service's subject; no AI is called, and the response has no `source` field.
 - **400** invalid id. **403/404** not the booking's parent or tutor, or unknown. **409** the booking is cancelled.
-- Sent to the AI: service name, subject, grade band, student grade, and the parent's notes with the student's first name replaced by "the student". Nothing is stored.
+- Requires login and the booking access check. It does not use the AI limits.

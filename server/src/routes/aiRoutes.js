@@ -20,14 +20,8 @@ router.post(
   recommendService,
 );
 
-// Same login and the SAME per-user limits (one shared AI allowance per account).
-router.post(
-  '/session-prep',
-  authenticate,
-  aiMinuteLimiter,
-  aiDayLimiter,
-  allowFields(['bookingId']),
-  sessionPrepTips,
-);
+// Built-in prep tips (no AI call), so the AI limits do not apply. Login and the booking
+// access check (parent or tutor of that session) still do.
+router.post('/session-prep', authenticate, allowFields(['bookingId']), sessionPrepTips);
 
 export default router;

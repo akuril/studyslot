@@ -167,7 +167,7 @@ request → authenticate (who? 401) → requireRole('parent' | 'tutor') (which k
   - `findTutorBooking`: the tutor of the booking's service.
   - `findViewableBooking`: either one, for reading.
 - `services/bookingRules.js#findServiceIdsSharingTutor`: overlap is checked per tutor.
-- `services/aiPrepService.js`: the second AI feature (prep tips). It shares `aiClient.js` and the per-user AI limits.
+- `services/aiPrepService.js`: built-in session prep tips by subject. It makes no AI call (the tips never change, so the AI only cost tokens).
 - **Client:**
   - `RoleRoute` keeps each account type on its own pages: parents on `/dashboard`, `/find-help`, and booking pages; tutors on `/tutor`.
   - `utils/roles.js` picks each account's home page.

@@ -76,7 +76,7 @@ Payments · email/SMS · chat · tutor availability calendars · tutor self sign
 |---|---|---|
 | P10 | As a parent, I want my own dashboard with my avatar, so I can see my week at a glance. | Greeting with initials avatar; stats; "Up next"; Monday–Saturday week view with previous/next; Upcoming, Completed, and Cancelled lists |
 | P11 | As a parent, I want to save my students once, so booking is faster. | Add, edit, and remove (first name and grade 6–12); duplicates and an 11th student are refused; the booking form offers saved students that fit the service's grades; "Save … for next time" checkbox |
-| P12 | As a parent, I want tips to prepare for a session. | "Get prep tips" on an upcoming booking returns 3–5 tips (AI, or general tips if the AI is down); shared AI limits |
+| P12 | As a parent, I want tips to prepare for a session. | An upcoming booking shows 3–5 built-in prep tips for its subject, loaded automatically. No AI is used, so they cost no tokens or AI allowance |
 | P13 | As a parent, I want to see what the tutor covered. | The tutor's summary and completion time appear on the booking |
 | T1 | As a tutor, I want to log in and see only my sessions. | `/tutor` dashboard: today, upcoming, and to-complete counts; week view; student first name, grade, and the parent's notes |
 | T2 | As a tutor, I want to mark a session completed with a summary. | Available once the session starts; optional summary (max 500); can't complete twice, a cancelled session, or another tutor's session |

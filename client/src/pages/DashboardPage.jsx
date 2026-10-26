@@ -160,7 +160,7 @@ function DashboardPage() {
                   <BookingCard booking={nextSession} />
                 </div>
                 <p className="small text-secondary mt-3 mb-0">
-                  Open the session to get ✨ AI prep tips, reschedule, or cancel (until 2 hours
+                  Open the session to get prep tips, reschedule, or cancel (until 2 hours
                   before).
                 </p>
               </div>
