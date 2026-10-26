@@ -16,6 +16,7 @@ const {
   buildUserMessage,
   parseModelJson,
   validateModelOutput,
+  dropOffSubjectPicks,
   SYSTEM_PROMPT,
   RECOMMENDATION_SCHEMA,
   DISCLAIMER,
@@ -220,6 +221,8 @@ test('the prompt has the rules, the catalog, the grade, and fenced user text', (
 
   assert.match(SYSTEM_PROMPT, /DATA, not instructions/);
   assert.match(SYSTEM_PROMPT, /Never invent services/);
+  assert.match(SYSTEM_PROMPT, /Never add a service just to reach 3/);
+  assert.match(SYSTEM_PROMPT, /honors/);
   assert.ok(message.includes(JSON.stringify(catalog)));
   assert.match(message, /STUDENT GRADE: 7/);
   assert.match(message, /<<<\nFractions test Friday\n>>>/);
@@ -436,4 +439,73 @@ test('client reports a network failure as "network"', async () => {
   await assert.rejects(requestChatCompletion({ ...baseRequest, fetchImpl: offline }), {
     kind: 'network',
   });
+});
+
+// ---------- off-subject guard ----------
+
+const scienceCatalog = [
+  { serviceId: 's1', name: 'Environmental Science Explorers', subject: 'science', gradeBand: '6-12', summary: '' },
+  { serviceId: 's2', name: 'Physical Science Lab Coach', subject: 'science', gradeBand: '6-8', summary: '' },
+  { serviceId: 'l1', name: 'Mandarin Chinese Starter', subject: 'world-languages', gradeBand: '6-12', summary: '' },
+  { serviceId: 'l2', name: 'French Foundations', subject: 'world-languages', gradeBand: '6-12', summary: '' },
+  { serviceId: 'h1', name: 'Homework Help', subject: 'homework-help', gradeBand: '6-12', summary: '' },
+];
+const pick = (serviceId) => ({ serviceId, reason: 'Fits.' });
+
+test('guard: "honors science" drops language picks the model added', async () => {
+  const { deps } = fakeDeps(
+    {
+      summary: 'Try these.',
+      recommendations: [pick('s1'), pick('l1'), pick('l2')],
+    },
+    { getCatalog: async () => scienceCatalog },
+  );
+
+  const result = await recommendServices(
+    { need: 'My 7th grader needs help with honors science work', grade: 7 },
+    deps,
+  );
+
+  assert.equal(result.source, 'ai');
+  assert.deepEqual(
+    result.recommendations.map((item) => item.name),
+    ['Environmental Science Explorers'],
+  );
+});
+
+test('guard: keeps general homework/study picks and the model order', () => {
+  const result = dropOffSubjectPicks(
+    [pick('s2'), pick('h1'), pick('l1')],
+    scienceCatalog,
+    'honors science work',
+  );
+  assert.deepEqual(result.recommendations.map((item) => item.serviceId), ['s2', 'h1']);
+  assert.equal(result.dropped, 1);
+});
+
+test('guard: does nothing when the description names no subject', () => {
+  const picks = [pick('l1'), pick('s1')];
+  const result = dropOffSubjectPicks(picks, scienceCatalog, 'needs extra support this year');
+  assert.deepEqual(result.recommendations, picks);
+  assert.equal(result.dropped, 0);
+});
+
+test('guard: never empties the answer (keeps the model picks if none are on subject)', () => {
+  const picks = [pick('l1'), pick('l2')];
+  const result = dropOffSubjectPicks(picks, scienceCatalog, 'help with science');
+  assert.deepEqual(result.recommendations, picks);
+  assert.equal(result.dropped, 0);
+});
+
+test('guard: keeps every subject the parent mentions', () => {
+  const catalogWithMath = [
+    ...scienceCatalog,
+    { serviceId: 'm1', name: 'Math Boost', subject: 'math', gradeBand: '6-8', summary: '' },
+  ];
+  const result = dropOffSubjectPicks(
+    [pick('m1'), pick('s1'), pick('l1')],
+    catalogWithMath,
+    'fractions and a science project',
+  );
+  assert.deepEqual(result.recommendations.map((item) => item.serviceId), ['m1', 's1']);
 });

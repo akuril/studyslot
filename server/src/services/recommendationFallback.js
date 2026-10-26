@@ -105,6 +105,18 @@ function matchesKeyword(word, keyword) {
   return keyword.length <= SHORT_WORD_LENGTH ? word === keyword : word.startsWith(keyword);
 }
 
+/** The subjects whose keywords appear in the description, e.g. "honors science work" -> {science}. */
+export function subjectsMentioned(need) {
+  const words = [...new Set(wordsOf(need))];
+  const subjects = new Set();
+  for (const [subject, keywords] of Object.entries(SUBJECT_KEYWORDS)) {
+    if (words.some((word) => keywords.some((keyword) => matchesKeyword(word, keyword)))) {
+      subjects.add(subject);
+    }
+  }
+  return subjects;
+}
+
 /**
  * @param {string} need  the parent's description
  * @param {Array<{serviceId: string, name: string, subject: string, gradeBand: string}>} catalog
