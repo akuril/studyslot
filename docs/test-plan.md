@@ -96,24 +96,24 @@ Run in a private browser window against the public Netlify URL. Fill in Actual a
 
 | # | Step | Expected | Actual | Pass/Fail |
 |---|---|---|---|---|
-| 1 | Open the home page | Loads; Console has no red errors | | |
-| 2 | Register a parent | Logged in; dashboard opens | | |
-| 3 | Log out, log in | Works | | |
-| 4 | Browse and filter services | List and filters work | | |
-| 5 | Open a service | Details show | | |
-| 6 | Find help (AI) | Relevant suggestions (see Section 6) | | |
-| 7 | Book from a suggestion | Booking created, shown on dashboard | | |
-| 8 | Open the booking | Prep tips load automatically; there is no "Get new tips" button | | |
-| 9 | Reschedule, then cancel | Both succeed | | |
-| 10 | Log out | Protected pages redirect to login | | |
-| 11 | Refresh `/services`, `/dashboard`, a service page | Each loads (no 404) | | |
-| 12 | Open an invalid route | Friendly not-found page | | |
-| 13 | Submit invalid forms | Clear messages | | |
-| 14 | Open `/dashboard` logged out | Redirected to login | | |
-| 15 | Phone-width layout | No sideways scrolling; buttons usable | | |
-| 16 | Network tab | No red failures except deliberate ones; API calls go to the Render URL | | |
-| 17 | Sign in as a tutor | Tutor dashboard; parent pages refused | | |
-| 18 | Check the booking in Atlas (Compass) | Document exists | | |
+| 1 | Open the home page | Loads; Console has no red errors | As expected (reported by author, 2026-10-26) | Pass |
+| 2 | Register a parent | Logged in; dashboard opens | As expected (reported by author, 2026-10-26) | Pass |
+| 3 | Log out, log in | Works | As expected (reported by author, 2026-10-26) | Pass |
+| 4 | Browse and filter services | List and filters work | As expected (reported by author, 2026-10-26) | Pass |
+| 5 | Open a service | Details show | As expected (reported by author, 2026-10-26) | Pass |
+| 6 | Find help (AI) | Relevant suggestions (see Section 6) | As expected (reported by author, 2026-10-26) | Pass |
+| 7 | Book from a suggestion | Booking created, shown on dashboard | As expected (reported by author, 2026-10-26) | Pass |
+| 8 | Open the booking | Prep tips load automatically; there is no "Get new tips" button | As expected (reported by author, 2026-10-26) | Pass |
+| 9 | Reschedule, then cancel | Both succeed | As expected (reported by author, 2026-10-26) | Pass |
+| 10 | Log out | Protected pages redirect to login | As expected (reported by author, 2026-10-26) | Pass |
+| 11 | Refresh `/services`, `/dashboard`, a service page | Each loads (no 404) | As expected (reported by author, 2026-10-26) | Pass |
+| 12 | Open an invalid route | Friendly not-found page | As expected (reported by author, 2026-10-26) | Pass |
+| 13 | Submit invalid forms | Clear messages | As expected (reported by author, 2026-10-26) | Pass |
+| 14 | Open `/dashboard` logged out | Redirected to login | As expected (reported by author, 2026-10-26) | Pass |
+| 15 | Phone-width layout | No sideways scrolling; buttons usable | As expected (reported by author, 2026-10-26) | Pass |
+| 16 | Network tab | No red failures except deliberate ones; API calls go to the Render URL | As expected (reported by author, 2026-10-26) | Pass |
+| 17 | Sign in as a tutor | Tutor dashboard; parent pages refused | As expected (reported by author, 2026-10-26) | Pass |
+| 18 | Check the booking in Atlas (Compass) | Document exists | As expected (reported by author, 2026-10-26) | Pass |
 
 ## 8. Defects found and fixed during testing
 
