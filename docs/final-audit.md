@@ -10,12 +10,12 @@ Audit date: 2026-10-26. Evidence comes from files in this repository, test runs 
 
 | # | Item | Status | Evidence | Required action |
 |---|---|---|---|---|
-| 1 | React frontend works | Pass | 13 pages, 26 components; built and used locally by the author; 52 client tests pass; ESLint clean on the files linted this session | None. Confirmed by the production checklist on 2026-10-26 |
-| 2 | Node and Express backend works | Pass | 185 of 185 server tests pass on 2026-10-26; 54-request Postman collection exists | None. Confirmed by the production checklist on 2026-10-26 |
+| 1 | React frontend works | Pass | 13 pages, 26 components; built and used locally by the author; 73 client tests pass; ESLint clean on the files linted this session | None. Confirmed by the production checklist on 2026-10-26 |
+| 2 | Node and Express backend works | Pass | 201 of 201 server tests pass on 2026-10-26; 54-request Postman collection exists | None. Confirmed by the production checklist on 2026-10-26 |
 | 3 | MongoDB integration works | Pass | Models for users, services, bookings, students; seed scripts; the app was used against Atlas locally | None. Confirmed by the production checklist on 2026-10-26 |
 | 4 | Registration, login, protected actions, logout | Pass | `auth.test.js` (12 tests: register, duplicate, weak password, login, same 401 for wrong email or password, expired and forged tokens); `bookingAccess.test.js`; logout removes the stored token | None. Confirmed by the production checklist on 2026-10-26 |
 | 5 | Services can be browsed and viewed | Pass | `services.test.js` (15 tests: list, filters, injection rejected, details, 404) | None. Confirmed by the production checklist on 2026-10-26 |
-| 6 | Bookings can be created and managed | Pass | `createBooking.test.js`, `updateCancel.test.js`, `bookingRules.test.js`; 52 client tests for time slots and daylight saving | None. Confirmed by the production checklist on 2026-10-26 |
+| 6 | Bookings can be created and managed | Pass | `createBooking.test.js`, `updateCancel.test.js`, `bookingRules.test.js`; 73 client tests for time slots and daylight saving | None. Confirmed by the production checklist on 2026-10-26 |
 | 7 | Dashboard shows meaningful information | Pass (not unit tested) | Next session, stats, week view, saved students, tutor dashboard. An earlier blank-dashboard bug (accounts without a role) was fixed and covered by a test | None. Confirmed by the production checklist on 2026-10-26 |
 | 8 | AI feature functional, visible, relevant, grounded | Pass | Grounding is tested (unknown ids dropped, names come from the database, injection markers stripped, fallback on failure). After the 2026-10-26 relevance fix (stricter prompt plus off-subject filter), cases M1–M6 passed on the deployed site, as reported by the author (`docs/test-plan.md` Section 6) | None |
 | 9 | Three-tier architecture and separation of concerns | Pass | `docs/architecture.md`; routes → middleware → controllers → services → models; the browser never reaches the database or the AI provider | None |

@@ -16,7 +16,7 @@ Open the live site a minute early so the free-tier server is awake. Have one par
 | 3:00 | Dashboard, then open the booking and show the prep tips | "Next session, stats, and a week view. The prep tips are built in, because the tips for a subject never change and AI would only waste tokens." |
 | 3:30 | Reschedule, then cancel | "Only the owner can change a booking, and not within 2 hours of the start." |
 | 4:00 | Log out; log in as the tutor and complete a session with a summary | "Tutors see only their own sessions. The parent then sees the summary. There's no admin role." |
-| 4:30 | Show the repo test results | "185 server tests and 52 client tests. The tests use fakes, so they need no database or internet." |
+| 4:30 | Show the repo test results | "201 server tests and 73 client tests. The tests use fakes, so they need no database or internet." |
 | 4:50 | Close | "Next I'd add password reset, tutor availability, and automated browser tests." |
 
 ## 2. Two-minute architecture explanation
@@ -63,7 +63,7 @@ Authentication is in one context so every page knows the user and token, and a p
 Minimum data is sent: the description, the grade, and the public catalog, with no names, emails, or bookings. The description is treated as data, output is validated against the catalog, and the server fills in the details. It requires login and is rate-limited, nothing is stored or logged, and a fallback keeps the app working when the AI fails. The AI can only suggest; it can't book or change anything.
 
 **10. How did you test it, and what did testing catch?**
-There are 185 server tests that run the whole API with fake database and AI parts, and 52 client unit tests for the time and validation logic. Testing and real use caught several issues: an old account without a role caused a blank dashboard, the AI padded results with unrelated subjects, and the prep tips wasted AI calls. Each fix has a test.
+There are 201 server tests that run the whole API with fake database and AI parts, and 73 client unit tests for the time and validation logic. Testing and real use caught several issues: an old account without a role caused a blank dashboard, the AI padded results with unrelated subjects, and the prep tips wasted AI calls. Each fix has a test.
 
 ## 5. Topic-specific questions to be ready for
 
@@ -78,12 +78,12 @@ There are 185 server tests that run the whole API with fake database and AI part
 
 ## 6. Short portfolio description
 
-StudySlot is a full-stack tutoring booking platform for grades 6–12. Parents browse 39 services, get AI-assisted recommendations, and book and manage sessions; tutors complete sessions with summaries. Built with React, Express, MongoDB Atlas, and Groq, with role-based access, Eastern Time booking rules, tutor-wide double-booking prevention, and a keyword fallback when the AI is unavailable. Covered by 237 automated tests and deployed on Netlify and Render.
+StudySlot is a full-stack tutoring booking platform for grades 6–12. Parents browse 39 services, get AI-assisted recommendations, and book and manage sessions; tutors complete sessions with summaries. Built with React, Express, MongoDB Atlas, and Groq, with role-based access, Eastern Time booking rules, tutor-wide double-booking prevention, and a keyword fallback when the AI is unavailable. Covered by 274 automated tests and deployed on Netlify and Render.
 
 (Keep "deployed on Netlify and Render" only after the production smoke test passes.)
 
 ## 7. Three CV bullets
 
 - Built a full-stack tutoring booking platform (React, Node/Express, MongoDB Atlas) with JWT authentication, parent and tutor roles, and ownership checks on every booking route.
-- Implemented booking rules in Eastern Time with daylight-saving handling and tutor-wide overlap prevention, backed by 185 server tests and 52 client unit tests.
+- Implemented booking rules in Eastern Time with daylight-saving handling and tutor-wide overlap prevention, backed by 201 server tests and 73 client unit tests.
 - Designed a grounded AI recommendation feature (Groq) that validates model output against the real catalog, filters off-subject picks, rate-limits users, and falls back to keyword matching when the AI is unavailable.

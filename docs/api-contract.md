@@ -85,6 +85,9 @@ Base URL: `http://localhost:5000/api` (development) · `https://SERVICE-NAME.onr
 | POST | /auth/register | Create a parent account | No (rate-limited) | 201 `{ token, user }` |
 | POST | /auth/login | Log in | No (rate-limited) | 200 `{ token, user }` |
 | GET | /auth/me | Current user (restore session) | Yes | 200 `{ user }` |
+| PATCH | /auth/me | Change my name (tutors: and bio) | Yes | 200 `{ user }` |
+| POST | /auth/change-password | Change my password | Yes (failed attempts rate-limited) | 200 `{ message }` |
+| GET | /auth/me/summary | Counts for the account page | Yes | 200 summary |
 | GET | /services | List active services (filterable) | No | 200 `Service[]` |
 | GET | /services/:id | One active service | No | 200 `Service` |
 | POST | /bookings | Create a booking | Yes | 201 `Booking` |
@@ -130,6 +133,29 @@ There are no service create/update/delete endpoints, because there is no admin r
 - **Header:** `Authorization: Bearer <token>`
 - **200:** `{ "user": User }`
 - **401:** missing, malformed, or expired token, or the user no longer exists. `{ "error": "Authentication required" }` or `{ "error": "Session expired. Please log in again." }`
+
+### PATCH /auth/me
+
+- **Body:** `{ "name"?: string, "bio"?: string }`. At least one field. Only these two can be sent; `email`, `role`, and anything else return 400 (`This field is not allowed`).
+- `name`: 2–60 characters, trimmed. `bio`: tutors only, up to 300 characters; an empty string clears it. A parent sending `bio` gets 400 (`Only tutors can add a bio`).
+- The account changed is always the one in the login token.
+- **200:** `{ "user": User }` (`bio` appears only for tutors)
+- **400:** validation errors with `details`. **401:** not logged in.
+
+### POST /auth/change-password
+
+- **Body:** `{ "currentPassword": string, "newPassword": string }`. The new password follows the sign-up rules (8–72 bytes, a letter and a number) and must differ from the current one.
+- The new password is stored as a new bcrypt hash. Existing login tokens stay valid until they expire (there is no server-side token list).
+- **200:** `{ "message": "Password updated" }`
+- **400:** validation errors with `details`. A wrong current password is **400** with `{ "field": "currentPassword", "message": "Current password is incorrect" }`, not 401, because the browser treats any 401 as an expired session.
+- **429:** more than 10 failed attempts per user in 15 minutes.
+
+### GET /auth/me/summary
+
+- **200 (parent):** `{ "role": "parent", "bookings": { "upcoming", "completed", "cancelled" }, "students": number }`
+- **200 (tutor):** `{ "role": "tutor", "bookings": { "upcoming", "completed", "cancelled", "needsCompleting" }, "services": [{ "id", "name", "subject", "gradeBand", "durationMinutes", "priceCents", "isActive" }] }`. `needsCompleting` = confirmed sessions that have started and are not marked completed.
+- "Completed" means marked by the tutor or already ended, the same rule the dashboards use. Only the caller's own data is counted.
+- **401:** not logged in.
 
 ### GET /services
 

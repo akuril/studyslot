@@ -7,7 +7,7 @@ Reviewed on 2026-10-21 against the code at this commit. Method:
 - Ran `npm audit`.
 - Sent attack-style requests to a running copy of the API in production mode.
 
-Automated evidence: `npm test` (185 server tests, plus 52 client tests added in Step 40) and the Postman collection (54 requests, 102 assertions).
+Automated evidence: `npm test` (201 server tests, plus 73 client tests) and the Postman collection (54 requests, 102 assertions).
 
 ## Summary
 

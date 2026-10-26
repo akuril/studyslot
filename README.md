@@ -32,6 +32,8 @@ Parents of middle and high school students often have to phone or email several 
 - Book, reschedule, edit notes on, and cancel sessions. Bookings follow Eastern Time hours (Mon–Fri 3–8 PM, Sat 9 AM–3 PM), 2 hours' notice, and no double-booking of a tutor
 - Parent dashboard with next session, stats, and a week view
 - Saved students (up to 10) for faster booking
+- "Book again" on past and cancelled sessions: same service and student, new date and time
+- Account page for parents and tutors: edit name (tutors: and bio), change password, personal numbers, and a tutor's linked services
 - Tutor dashboard with session completion and a summary the parent can read
 - "Find the right help": AI service recommendations
 - Built-in prep tips for each upcoming session
@@ -167,8 +169,8 @@ Parents register through the app. Tutor logins are created by `npm run seed:tuto
 ## Testing
 
 ```bash
-cd server && npm test        # 185 automated tests, no database or internet needed
-cd client && npm test        # 52 unit tests for the client logic
+cd server && npm test        # 201 automated tests, no database or internet needed
+cd client && npm test        # 73 unit tests for the client logic
 cd client && npm run lint
 ```
 
@@ -183,6 +185,9 @@ All paths start with `/api`. Full details are in `docs/api-contract.md`.
 | GET | `/health` | Anyone |
 | POST | `/auth/register`, `/auth/login` | Anyone (rate-limited) |
 | GET | `/auth/me` | Logged in |
+| PATCH | `/auth/me` | Logged in (name; tutors also bio) |
+| POST | `/auth/change-password` | Logged in (failed attempts rate-limited) |
+| GET | `/auth/me/summary` | Logged in (counts for the account page) |
 | GET | `/services`, `/services/:id` | Anyone |
 | POST | `/bookings` | Parent |
 | GET | `/bookings/mine`, `/bookings/:id` | Owner |
@@ -211,7 +216,7 @@ Frontend on Netlify (base directory `client`, build `npm run build`, publish `di
 ## Known limitations
 
 - The login token is stored in the browser's `localStorage`. A strict content security policy and React's escaping reduce the risk; httpOnly cookies would need extra CSRF protection.
-- Logging out removes the token in the browser, but a copied token stays valid until it expires (1 day).
+- Logging out removes the token in the browser, but a copied token stays valid until it expires (1 day). Changing a password does not sign out other devices.
 - Rate limits are kept in memory, so they reset when the server restarts and are not shared between servers.
 - No payment processing, email or text reminders, or password reset. Prices are informational.
 - All tutors share one demo password set by the seed script. Use fictional tutors only.

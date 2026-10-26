@@ -26,8 +26,8 @@ No test calls the real AI provider or the real database. The model call, catalog
 ## 3. How to run
 
 ```
-cd server && npm test        # 185 tests
-cd client && npm test        # 52 tests
+cd server && npm test        # 201 tests
+cd client && npm test        # 73 tests
 cd client && npm run lint    # ESLint
 cd client && npm audit       # and: cd server && npm audit
 ```
@@ -36,9 +36,9 @@ cd client && npm audit       # and: cd server && npm audit
 
 | Check | Result |
 |---|---|
-| Server tests | 185 run, 185 passed, 0 failed |
-| Client tests | 52 run, 52 passed, 0 failed (6 files) |
-| Client tests under other time zones | 52 / 52 pass with `TZ=UTC`, `TZ=Asia/Tokyo`, and `TZ=America/Los_Angeles` |
+| Server tests | 201 run, 201 passed, 0 failed |
+| Client tests | 73 run, 73 passed, 0 failed (8 files) |
+| Client tests under other time zones | 73 / 73 pass with `TZ=UTC`, `TZ=Asia/Tokyo`, and `TZ=America/Los_Angeles` |
 | Client lint | No errors on the utils, tests, and changed components |
 | `npm audit` (client) | 0 vulnerabilities (a `zod` advisory in a dev tool was fixed with `npm audit fix`) |
 | `npm audit` (server) | 0 vulnerabilities (recorded in `docs/security-review.md`) |
@@ -67,6 +67,8 @@ Postman, the local manual checklist, and the production smoke test are run by ha
 | P9 | My data is private | `bookingAccess.test.js` (403 for other users, `/mine` ignores `?user=`); `roles.test.js` (own students only) | Manual |
 | P11 | Saved students | `roles.test.js` (save, rename, delete, limit of 10, duplicates, validation); client `students.test.js` | Manual |
 | P12 | Prep tips | `aiPrep.test.js` (built-in tips for every subject, no AI import); `roles.test.js` (access, 400, 404, 409) | Manual |
+| P14, T4 | Account page: edit name or bio, change password, numbers | `account.test.js` (16 tests: name and bio rules, no email or role changes, parents have no bio, new bcrypt hash, wrong current password is 400 not 401, strength and reuse rules, 429 after 10 failed tries, summary counts for parents and tutors, own data only); client `accountValidation.test.js` | Production checklist rows 19–20 |
+| P15 | Book again | client `bookAgain.test.js` (which sessions qualify, link contents, hand-edited links ignored) | Production checklist row 21 |
 | P13 | See what the tutor covered | `roles.test.js` (tutor completes a session with a summary) | Manual |
 | A1 | Describe a need, get suggestions | `aiService.test.js`, `aiRoute.test.js` | Section 6 |
 | A2 | Useful answer when AI is down | `aiService.test.js` (every provider failure kind uses the fallback, bad output uses the fallback) | Section 6 |
@@ -114,6 +116,9 @@ Run in a private browser window against the public Netlify URL. Fill in Actual a
 | 16 | Network tab | No red failures except deliberate ones; API calls go to the Render URL | As expected (reported by author, 2026-10-26) | Pass |
 | 17 | Sign in as a tutor | Tutor dashboard; parent pages refused | As expected (reported by author, 2026-10-26) | Pass |
 | 18 | Check the booking in Atlas (Compass) | Document exists | As expected (reported by author, 2026-10-26) | Pass |
+| 19 | Parent: open My account, edit the name, change the password, log out and back in with the new one | Name updates in the navbar; a wrong current password shows a message and keeps you logged in; the new password works | | |
+| 20 | Tutor: open My account, edit the bio, check the services list and the "to mark completed" number | Bio saved; services match the catalog | | |
+| 21 | Parent: click "Book again" on a completed or cancelled session | The booking form opens for the same service with the student pre-filled and no date chosen | | |
 
 ## 8. Defects found and fixed during testing
 
@@ -121,6 +126,7 @@ Run in a private browser window against the public Netlify URL. Fill in Actual a
 |---|---|---|---|
 | 2026-10-26 | The AI suggested Mandarin and French for "honors science work" | Stricter prompt (only clear fits, don't pad to 3, honors means difficulty) and a server filter that drops picks from subjects the parent didn't mention | `aiService.test.js` "guard:" tests |
 | 2026-10-26 | Prep tips called the AI on every click, but the tips for a subject never change | Tips are built in, load automatically, and use no AI quota | `aiPrep.test.js`, `roles.test.js` |
+| 2026-10-26 | The new "Book again" button on dashboard cards could not be clicked: the card's full-card title link (z-index 1) sat on top of it | Gave the button its own higher z-index | Found by driving the built app in a real browser against a stub API; no unit test (page layout) |
 | 2026-10-26 | Refreshing a page on Netlify would return 404 (no SPA rewrite) | Added a redirect rule in `netlify.toml` | Production checklist row 11 |
 
 ## 9. Known gaps
@@ -128,3 +134,4 @@ Run in a private browser window against the public Netlify URL. Fill in Actual a
 - No automated browser tests. The React pages and components are not unit tested; only the logic in `client/src/utils/`.
 - AI quality is checked by hand with a few examples, not measured at scale.
 - Rate limits and cold-start behavior are only checked on the deployed site.
+- Changing a password does not sign out other devices: login tokens are not tracked on the server, so they stay valid until they expire (1 day).
