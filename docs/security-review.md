@@ -7,7 +7,7 @@ Reviewed on 2026-10-21 against the code at this commit. Method:
 - Ran `npm audit`.
 - Sent attack-style requests to a running copy of the API in production mode.
 
-Automated evidence: `npm test` (185 server tests) and the Postman collection (54 requests, 102 assertions).
+Automated evidence: `npm test` (185 server tests, plus 52 client tests added in Step 40) and the Postman collection (54 requests, 102 assertions).
 
 ## Summary
 
@@ -96,7 +96,7 @@ Automated evidence: `npm test` (185 server tests) and the Postman collection (54
 | Check | Result |
 |---|---|
 | `npm audit` (server) | ✅ 0 vulnerabilities |
-| `npm audit` (client) | Run on the developer machine (`npm audit` in `client/`) and record the result here before submission |
+| `npm audit` (client) | ✅ 0 vulnerabilities (2026-10-26, after updating a `zod` dev-tool dependency with `npm audit fix`) |
 
 ## Accepted risks (known limitations)
 
