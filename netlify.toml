@@ -1,0 +1,19 @@
+# Netlify build settings for StudySlot (the React app lives in client/).
+# Paths below are relative to `base`. This file wins over settings typed in the Netlify UI.
+
+[build]
+  base = "client"
+  command = "npm run build"
+  publish = "dist"
+
+  [build.environment]
+    NODE_VERSION = "22"
+
+# Single-page app: any path that is not a real file serves index.html, so refreshing
+# /dashboard or opening a shared link works. The browser URL stays the same (status 200).
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Security headers come from client/public/_headers (copied into dist/ by the build).
