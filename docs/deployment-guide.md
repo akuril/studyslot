@@ -125,13 +125,13 @@ It must finish without errors and create `client/dist/` (which is Git-ignored). 
 4. Click **Deploy**. Watch the **Deploy log** for `vite build` finishing and `Site is live`.
 5. **SPA refresh.** The `[[redirects]]` rule in `netlify.toml` sends every path to `index.html` with status 200. Test it in Section 6.
 6. **Branch and auto-deploys.** Production deploys from `main`; every push to `main` rebuilds the site. Other branches and pull requests get preview URLs, which the API will reject by CORS unless you add them (leave that off).
-7. Note your Netlify address (for example `https://studyslot.netlify.app`). You can change the part before `.netlify.app` under *Project configuration → Domain management*.
+7. Note your Netlify address (for example `https://mystudyslot.netlify.app`). You can change the part before `.netlify.app` under *Project configuration → Domain management*.
 
 ## 5. Production CORS and URLs
 
 The login token travels in the `Authorization` header and is stored in `localStorage`, so there are no cookies. That means `httpOnly`, `sameSite`, `secure`, and `credentials` settings do not apply, and the browser only needs the exact origin to be allowed.
 
-1. On Render → *Environment*, set `CLIENT_ORIGIN` to the exact Netlify origin: `https://studyslot.netlify.app` (https, no path, no trailing slash).
+1. On Render → *Environment*, set `CLIENT_ORIGIN` to the exact Netlify origin: `https://mystudyslot.netlify.app` (https, no path, no trailing slash).
 2. Choose **Save and deploy**.
 3. Confirm no wildcard exists anywhere (`grep -rn "origin: '\*'" server/src` should find nothing).
 4. Confirm `client/public/_headers` still lists `https://*.onrender.com` under `connect-src`. If your API URL is not on onrender.com, edit it.

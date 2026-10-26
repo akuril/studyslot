@@ -4,8 +4,8 @@ Audit date: 2026-10-26. Evidence comes from files in this repository, test runs 
 
 ## Blocking issues (fix first)
 
-1. **Not deployed or verified yet** (item 13). The deployment guide is ready; the steps are in your hands.
-2. **Commits not pushed** (item 14). Run `git push` so Render and Netlify can build the latest code.
+1. **Production checks not recorded yet** (item 13). The site is live; the remaining checks are in `docs/test-plan.md` Section 7.
+2. **Commits not pushed** (item 14). Run `git push` so GitHub matches what is deployed.
 3. **AI relevance fix not re-tested with the real model** (item 8).
 4. **SDLC document not delivered** (item 16): delivered as a document in this session; it needs the evidence only you can add.
 
@@ -25,9 +25,9 @@ Audit date: 2026-10-26. Evidence comes from files in this repository, test runs 
 | 10 | Validation, error handling, authentication, authorization | Pass | `foundation.test.js` (20), `roles.test.js` (20), `auth.test.js`, `cors.test.js`; `docs/security-review.md` (37 checks passed, 2 issues fixed) | None |
 | 11 | UI professional and responsive | Not Verified | Bootstrap layout, light and dark themes, illustrations per service. No phone-width test recorded | Run production checklist row 15 on a phone and attach screenshots |
 | 12 | Core workflows have test evidence | Pass | `docs/test-plan.md` traces each user story to tests. The manual results tables are empty | Fill in the manual tables as you run them |
-| 13 | Frontend, backend, and database deployed and connected | **Not Verified** | Deployment guide, `netlify.toml`, and Node version cap prepared; nothing deployed yet | Follow `docs/deployment-guide.md` Sections 1–6; record the URLs |
-| 14 | At least 15 meaningful commits | Pass (local) | 43 commits on `main` with descriptive messages | Push to GitHub |
-| 15 | README complete | Needs Work | README written with all 21 sections | Replace the live-link and screenshot placeholders after deployment |
+| 13 | Frontend, backend, and database deployed and connected | **Pass (partial)** | Live on 2026-10-26: app https://mystudyslot.netlify.app, API https://studyslot-attl.onrender.com, production Atlas database `studyslot_prod`. The services page loads 39 active services from the production API, and the author logged in as seeded tutors on the live site | Finish the production checklist (`docs/test-plan.md` Section 7): booking persists in Atlas and survives a redeploy; record results |
+| 14 | At least 15 meaningful commits | Pass (local) | 45 commits on `main` with descriptive messages | Push to GitHub |
+| 15 | README complete | Pass | README has all 21 sections, the live links, and five screenshots in `docs/screenshots/` | Re-check the links before submitting |
 | 16 | SDLC documentation complete | Needs Work | Written as a document; evidence sections are placeholders | Add screenshots, Postman and checklist results, final links |
 | 17 | Student can explain the main code and technical decisions | Not Verified | `docs/demo-prep.md` has the demo script and interview answers | Practice out loud; open the code files named in the answers |
 | 18 | No secrets committed or exposed | Pass (scan on 2026-10-26) | `.env` files are untracked; only `.env.example` files are committed; no key or database-URI patterns in tracked files or in Git history | Rotate any key or password you have pasted into a chat. Use new production credentials (guide Section 1). Re-scan before submitting. |
@@ -35,7 +35,8 @@ Audit date: 2026-10-26. Evidence comes from files in this repository, test runs 
 ## Summary
 
 - Pass: 9, 10, 12, 14 (once pushed), 18, and the local parts of 1–7
-- Needs Work: 8, 15, 16
-- Not Verified: 11, 13, 17
+- Needs Work: 8, 16
+- Partial: 13
+- Not Verified: 11, 17
 
-Do not mark the project complete until items 8, 11, 13, and 15 are Pass.
+Do not mark the project complete until items 8, 11, and 13 are Pass.

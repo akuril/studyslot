@@ -8,9 +8,9 @@ An AI-assisted tutoring booking platform for students in grades 6–12. Parents 
 
 | | URL |
 |---|---|
-| Live app (Netlify) | _add after deployment_ |
-| API (Render) | _add after deployment_ |
-| Health check | `https://<api-host>/api/health` |
+| Live app (Netlify) | https://mystudyslot.netlify.app |
+| API (Render) | https://studyslot-attl.onrender.com |
+| Health check | https://studyslot-attl.onrender.com/api/health |
 | Repository | https://github.com/akuril/studyslot |
 
 The API runs on a free Render plan, which sleeps after 15 minutes without traffic. The first request after a sleep can take about a minute.
@@ -27,7 +27,7 @@ Parents of middle and high school students often have to phone or email several 
 
 ## Key features
 
-- Browse and filter 40 tutoring services by subject and grade
+- Browse and filter 39 active tutoring services by subject and grade
 - Register, log in, and stay logged in across refreshes (JWT)
 - Book, reschedule, edit notes on, and cancel sessions. Bookings follow Eastern Time hours (Mon–Fri 3–8 PM, Sat 9 AM–3 PM), 2 hours' notice, and no double-booking of a tutor
 - Parent dashboard with next session, stats, and a week view
@@ -200,15 +200,13 @@ Frontend on Netlify (base directory `client`, build `npm run build`, publish `di
 
 ## Screenshots
 
-_Add after deployment._
-
 | Screen | Image |
 |---|---|
-| Services list | `docs/screenshots/services.png` |
-| Find the right help (AI) | `docs/screenshots/find-help.png` |
-| Booking form | `docs/screenshots/booking.png` |
-| Parent dashboard | `docs/screenshots/dashboard.png` |
-| Tutor dashboard | `docs/screenshots/tutor.png` |
+| Services list | ![Services list](docs/screenshots/services.png) |
+| Find the right help (AI) | ![Find the right help](docs/screenshots/find-help.png) |
+| Booking form | ![Booking form](docs/screenshots/booking.png) |
+| Parent dashboard | ![Parent dashboard](docs/screenshots/dashboard.png) |
+| Tutor dashboard | ![Tutor dashboard](docs/screenshots/tutor.png) |
 
 ## Known limitations
 

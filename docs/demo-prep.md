@@ -9,7 +9,7 @@ Open the live site a minute early so the free-tier server is awake. Have one par
 | Time | Do | Say |
 |---|---|---|
 | 0:00 | Home page | "StudySlot helps parents of grade 6–12 students find and book tutoring. Parents book; tutors run the sessions. It's React, Express, and MongoDB, deployed on Netlify, Render, and Atlas." |
-| 0:30 | Services page, filter by Science and grade 7 | "40 services. Filters are checked on the server too, so a made-up filter value never reaches the database." |
+| 0:30 | Services page, filter by Science and grade 7 | "39 active services. Filters are checked on the server too, so a made-up filter value never reaches the database." |
 | 1:00 | Log in as the parent, open Find help, type "My 7th grader needs help with honors science work" | "This is the AI feature. It reads my description and the real catalog and picks matching services." |
 | 1:45 | Point out the reasons and the disclaimer; open a suggested service | "The server only keeps services that exist in our catalog, and takes names and grades from the database, not from the model." |
 | 2:15 | Book a session: pick a date and a time slot | "Times are offered in Eastern Time with daylight saving handled, at least 2 hours ahead. The server checks all of it again, and one tutor can't be booked twice at the same time." |
@@ -78,7 +78,7 @@ There are 185 server tests that run the whole API with fake database and AI part
 
 ## 6. Short portfolio description
 
-StudySlot is a full-stack tutoring booking platform for grades 6–12. Parents browse 40 services, get AI-assisted recommendations, and book and manage sessions; tutors complete sessions with summaries. Built with React, Express, MongoDB Atlas, and Groq, with role-based access, Eastern Time booking rules, tutor-wide double-booking prevention, and a keyword fallback when the AI is unavailable. Covered by 237 automated tests and deployed on Netlify and Render.
+StudySlot is a full-stack tutoring booking platform for grades 6–12. Parents browse 39 services, get AI-assisted recommendations, and book and manage sessions; tutors complete sessions with summaries. Built with React, Express, MongoDB Atlas, and Groq, with role-based access, Eastern Time booking rules, tutor-wide double-booking prevention, and a keyword fallback when the AI is unavailable. Covered by 237 automated tests and deployed on Netlify and Render.
 
 (Keep "deployed on Netlify and Render" only after the production smoke test passes.)
 
