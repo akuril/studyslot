@@ -9,6 +9,7 @@ import CompleteSessionForm from '../components/CompleteSessionForm';
 import PrepTipsPanel from '../components/PrepTipsPanel';
 import { useAuth } from '../context/AuthContext';
 import { isTutor } from '../utils/roles';
+import { bookAgainPath, canBookAgain } from '../utils/bookAgain';
 import { useApiData } from '../hooks/useApiData';
 import { cancelBooking, getBooking } from '../api/bookings';
 import {
@@ -229,6 +230,17 @@ function BookingDetailsPage() {
                     Keep my booking
                   </button>
                 </div>
+              </div>
+            )}
+
+            {!tutor && canBookAgain(booking) && (
+              <div className="mt-4">
+                <Link to={bookAgainPath(booking)} className="btn btn-primary">
+                  ↻ Book again
+                </Link>
+                <p className="small text-secondary mt-2 mb-0">
+                  Same service and student. You&apos;ll pick a new date and time.
+                </p>
               </div>
             )}
 

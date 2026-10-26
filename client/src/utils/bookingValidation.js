@@ -1,5 +1,5 @@
 // Instant checks for the booking forms (the server re-checks everything).
-const FIRST_NAME_PATTERN = /^\p{L}[\p{L} '-]*$/u;
+export const FIRST_NAME_PATTERN = /^\p{L}[\p{L} '-]*$/u;
 export const NOTES_MAX = 300;
 
 export function validateBookingForm({ studentFirstName, studentGrade, startTime, notes }) {

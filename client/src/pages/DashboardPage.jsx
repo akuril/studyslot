@@ -27,7 +27,7 @@ function greetingFor(date) {
   return 'Good evening';
 }
 
-function BookingSection({ title, bookings, emptyText }) {
+function BookingSection({ title, bookings, emptyText, showBookAgain = false }) {
   return (
     <section className="mb-4" aria-labelledby={`section-${title}`}>
       <h2 id={`section-${title}`} className="h5 fw-bold mb-3">
@@ -39,7 +39,7 @@ function BookingSection({ title, bookings, emptyText }) {
         <div className="row g-3">
           {bookings.map((booking) => (
             <div className="col-12 col-md-6 col-xl-4" key={booking.id}>
-              <BookingCard booking={booking} />
+              <BookingCard booking={booking} showBookAgain={showBookAgain} />
             </div>
           ))}
         </div>
@@ -202,9 +202,10 @@ function DashboardPage() {
         title="Completed"
         bookings={completed}
         emptyText="No completed sessions yet."
+        showBookAgain
       />
       {cancelled.length > 0 && (
-        <BookingSection title="Cancelled" bookings={cancelled} emptyText="" />
+        <BookingSection title="Cancelled" bookings={cancelled} emptyText="" showBookAgain />
       )}
     </div>
   );

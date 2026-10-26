@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import BookingStatusBadge from './BookingStatusBadge';
+import { bookAgainPath } from '../utils/bookAgain';
 import { formatDateTime } from '../utils/bookingTime';
 
-function BookingCard({ booking }) {
+// `showBookAgain` adds a "Book again" button (parents' past and cancelled sessions).
+function BookingCard({ booking, showBookAgain = false }) {
   const { serviceSnapshot } = booking;
 
   return (
@@ -26,6 +28,17 @@ function BookingCard({ booking }) {
           {booking.studentFirstName} (grade {booking.studentGrade}) · {serviceSnapshot.tutorName} ·{' '}
           {serviceSnapshot.durationMinutes} min
         </p>
+        {showBookAgain && (
+          // The card's title link stretches over the whole card (z-index 1), so this button
+          // needs its own higher z-index to stay clickable.
+          <Link
+            to={bookAgainPath(booking)}
+            className="btn btn-sm btn-outline-primary position-relative mt-3"
+            style={{ zIndex: 2 }}
+          >
+            ↻ Book again
+          </Link>
+        )}
       </div>
     </article>
   );

@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
 import EmptyState from '../components/EmptyState';
@@ -11,6 +11,7 @@ import { createBooking } from '../api/bookings';
 import { createStudent, getStudents } from '../api/students';
 import Avatar from '../components/Avatar';
 import { MAX_STUDENTS } from '../utils/students';
+import { readBookAgain } from '../utils/bookAgain';
 import { formatGradeBand, formatPrice } from '../utils/services';
 import { NOTES_MAX, validateBookingForm } from '../utils/bookingValidation';
 
@@ -23,9 +24,12 @@ function gradesForBand(gradeBand) {
 function BookingForm({ service, students }) {
   const navigate = useNavigate();
   const grades = gradesForBand(service.gradeBand);
+  // "Book again" links pre-fill the student (checked again here and by the server).
+  const [searchParams] = useSearchParams();
+  const [prefill] = useState(() => readBookAgain(searchParams, grades));
   const [form, setForm] = useState({
-    studentFirstName: '',
-    studentGrade: grades.length === 1 ? String(grades[0]) : '',
+    studentFirstName: prefill.studentFirstName,
+    studentGrade: prefill.studentGrade || (grades.length === 1 ? String(grades[0]) : ''),
     date: '',
     startTime: '',
     notes: '',
@@ -103,6 +107,11 @@ function BookingForm({ service, students }) {
 
   return (
     <form onSubmit={handleSubmit} noValidate>
+      {prefill.studentFirstName && (
+        <div className="alert alert-info py-2" role="status">
+          Booking again for <strong>{prefill.studentFirstName}</strong>. Choose a new date and time.
+        </div>
+      )}
       {serverError && (
         <div className="alert alert-danger" role="alert">
           {serverError}
