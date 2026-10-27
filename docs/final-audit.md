@@ -4,7 +4,7 @@ Audit date: 2026-10-26. Evidence comes from files in this repository, test runs 
 
 ## Blocking issues (fix first)
 
-1. **SDLC document not delivered** (item 16): delivered as a document in this session; it needs the evidence only you can add.
+None. The SDLC document is complete: test evidence, production checklist results and the author's own Section 13 are in place (2026-10-26).
 
 ## Checklist
 
@@ -23,16 +23,15 @@ Audit date: 2026-10-26. Evidence comes from files in this repository, test runs 
 | 11 | UI professional and responsive | Pass | Bootstrap layout, light and dark themes, illustrations per service. Production checklist row 15 (phone-width layout) passed on 2026-10-26, as reported by the author; screenshots in `docs/screenshots/` | None |
 | 12 | Core workflows have test evidence | Pass | `docs/test-plan.md` traces each user story to tests. The manual results tables are empty | Fill in the manual tables as you run them |
 | 13 | Frontend, backend, and database deployed and connected | Pass | Live on 2026-10-26: app https://mystudyslot.netlify.app, API https://studyslot-attl.onrender.com, Atlas database `studyslot_prod`. All 18 production checklist rows passed, as reported by the author (`docs/test-plan.md` Section 7), including a booking stored in Atlas | None |
-| 14 | At least 15 meaningful commits | Pass | 45 commits on `main` with descriptive messages, pushed to GitHub | None |
+| 14 | At least 15 meaningful commits | Pass | 53 commits on `main` with descriptive messages, pushed to GitHub | None |
 | 15 | README complete | Pass | README has all 21 sections, the live links, and five screenshots in `docs/screenshots/` | Re-check the links before submitting |
-| 16 | SDLC documentation complete | Needs Work | Written as a document; evidence sections are placeholders | Add screenshots, Postman and checklist results, final links |
+| 16 | SDLC documentation complete | Pass | SDLC document written and published as a Claude document; screenshots, test results (201 server, 73 client, Postman 54 requests and 102 assertions), production checklist results and the author's own AI-use section added on 2026-10-26 | Submit it in the format the course requires |
 | 17 | Student can explain the main code and technical decisions | Not Verified | `docs/demo-prep.md` has the demo script and interview answers | Practice out loud; open the code files named in the answers |
 | 18 | No secrets committed or exposed | Pass (scan on 2026-10-26) | `.env` files are untracked; only `.env.example` files are committed; no key or database-URI patterns in tracked files or in Git history | Rotate any key or password you have pasted into a chat. Use new production credentials (guide Section 1). Re-scan before submitting. |
 
 ## Summary
 
-- Pass: 1–15 and 18
-- Needs Work: 16
+- Pass: 1–16 and 18
 - Not Verified: 17
 
-Remaining before submission: item 16 (SDLC evidence) and item 17 (practice the demo).
+Remaining before submission: item 17 (practice the demo), rotating shared secrets, and submitting the SDLC document in the required format.
