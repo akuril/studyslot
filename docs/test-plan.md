@@ -116,9 +116,9 @@ Run in a private browser window against the public Netlify URL. Fill in Actual a
 | 16 | Network tab | No red failures except deliberate ones; API calls go to the Render URL | As expected (reported by author, 2026-10-26) | Pass |
 | 17 | Sign in as a tutor | Tutor dashboard; parent pages refused | As expected (reported by author, 2026-10-26) | Pass |
 | 18 | Check the booking in Atlas (Compass) | Document exists | As expected (reported by author, 2026-10-26) | Pass |
-| 19 | Parent: open My account, edit the name, change the password, log out and back in with the new one | Name updates in the navbar; a wrong current password shows a message and keeps you logged in; the new password works | | |
+| 19 | Parent: open My account, edit the name, change the password, log out and back in with the new one | Name updates in the navbar; a wrong current password shows a message and keeps you logged in; the new password works | Name edit and password change worked (reported by author, 2026-10-26); wrong-current-password message not reported | Pass |
 | 20 | Tutor: open My account, edit the bio, check the services list and the "to mark completed" number | Bio saved; services match the catalog | | |
-| 21 | Parent: click "Book again" on a completed or cancelled session | The booking form opens for the same service with the student pre-filled and no date chosen | | |
+| 21 | Parent: click "Book again" on a completed or cancelled session | The booking form opens for the same service with the student pre-filled and no date chosen | As expected (reported by author, 2026-10-26) | Pass |
 
 ## 8. Defects found and fixed during testing
 
